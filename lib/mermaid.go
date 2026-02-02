@@ -107,6 +107,16 @@ func PrintMermaid(root *Activity) {
 	PrintMermaidTo(os.Stdout, root)
 }
 
+// GenerateMermaid genera il diagramma Mermaid come stringa
+func GenerateMermaid(root *Activity) string {
+	if root == nil {
+		return ""
+	}
+	var buf strings.Builder
+	PrintMermaidTo(&buf, root)
+	return buf.String()
+}
+
 // WriteMermaidToFile scrive il diagramma Mermaid su file. Crea la directory se non esiste.
 // Se root è nil non scrive nulla e restituisce nil.
 func WriteMermaidToFile(root *Activity, path string) error {
