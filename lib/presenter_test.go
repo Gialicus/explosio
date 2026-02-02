@@ -50,8 +50,8 @@ func TestPrintReportTo_WithHumanAndMaterial(t *testing.T) {
 	var buf bytes.Buffer
 	PrintReportTo(&buf, root, 0, true, "")
 	out := buf.String()
-	if !strings.Contains(out, "Umano") {
-		t.Errorf("output must contain Umano when Humans present: %q", out)
+	if !strings.Contains(out, "Human") {
+		t.Errorf("output must contain Human when Humans present: %q", out)
 	}
 	if !strings.Contains(out, "Cameriere") {
 		t.Errorf("output must contain role name: %q", out)

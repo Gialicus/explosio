@@ -35,18 +35,36 @@ func printMermaidRec(w io.Writer, a *Activity) {
 		lbl := mermaidLabel(fmt.Sprintf("%s (€%.0f/h)", h.Role, h.CostPerH))
 		fmt.Fprintf(w, "  %s([\"%s\"])\n", resID, lbl)
 		fmt.Fprintf(w, "  %s --> %s\n", a.ID, resID)
+		if h.Supplier != nil {
+			supplierID := fmt.Sprintf("%s_SUP_H_%d", prefix, i)
+			supplierLbl := mermaidLabel(fmt.Sprintf("%s: max %.1f/%s [validatore]", h.Supplier.Name, h.Supplier.AvailableQuantity, h.Supplier.Period.String()))
+			fmt.Fprintf(w, "  %s{\"%s\"}\n", supplierID, supplierLbl)
+			fmt.Fprintf(w, "  %s -.-> %s\n", resID, supplierID)
+		}
 	}
 	for i, m := range a.Materials {
 		resID := fmt.Sprintf("%s_M_%d", prefix, i)
 		lbl := mermaidLabel(fmt.Sprintf("%s (€%.2f)", m.Name, m.UnitCost*m.Quantity))
 		fmt.Fprintf(w, "  %s[/\"%s\"/]\n", resID, lbl)
 		fmt.Fprintf(w, "  %s --> %s\n", a.ID, resID)
+		if m.Supplier != nil {
+			supplierID := fmt.Sprintf("%s_SUP_M_%d", prefix, i)
+			supplierLbl := mermaidLabel(fmt.Sprintf("%s: max %.1f/%s [validatore]", m.Supplier.Name, m.Supplier.AvailableQuantity, m.Supplier.Period.String()))
+			fmt.Fprintf(w, "  %s{\"%s\"}\n", supplierID, supplierLbl)
+			fmt.Fprintf(w, "  %s -.-> %s\n", resID, supplierID)
+		}
 	}
 	for i, as := range a.Assets {
 		resID := fmt.Sprintf("%s_A_%d", prefix, i)
 		lbl := mermaidLabel(fmt.Sprintf("%s (€%.2f)", as.Name, as.CostPerUse*as.Quantity))
 		fmt.Fprintf(w, "  %s[(\"%s\")]\n", resID, lbl)
 		fmt.Fprintf(w, "  %s --> %s\n", a.ID, resID)
+		if as.Supplier != nil {
+			supplierID := fmt.Sprintf("%s_SUP_A_%d", prefix, i)
+			supplierLbl := mermaidLabel(fmt.Sprintf("%s: max %.1f/%s [validatore]", as.Supplier.Name, as.Supplier.AvailableQuantity, as.Supplier.Period.String()))
+			fmt.Fprintf(w, "  %s{\"%s\"}\n", supplierID, supplierLbl)
+			fmt.Fprintf(w, "  %s -.-> %s\n", resID, supplierID)
+		}
 	}
 	for _, sub := range a.SubActivities {
 		fmt.Fprintf(w, "  %s --> %s\n", a.ID, sub.ID)

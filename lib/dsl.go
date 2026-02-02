@@ -45,18 +45,47 @@ func (p *Project) Node(name, desc string, duration int) *Activity {
 // --- Metodi di Chaining per Activity ---
 
 func (a *Activity) WithHuman(role, desc string, costH, qty float64) *Activity {
-	a.Humans = append(a.Humans, HumanResource{role, desc, costH, qty})
+	a.Humans = append(a.Humans, HumanResource{role, desc, costH, qty, nil})
+	return a
+}
+
+// WithHumanFromSupplier aggiunge una risorsa umana fornita da un fornitore
+func (a *Activity) WithHumanFromSupplier(role, desc string, costH, qty float64, supplier *Supplier) *Activity {
+	a.Humans = append(a.Humans, HumanResource{role, desc, costH, qty, supplier})
 	return a
 }
 
 func (a *Activity) WithMaterial(name, desc string, cost, qty float64) *Activity {
-	a.Materials = append(a.Materials, MaterialResource{name, desc, cost, qty})
+	a.Materials = append(a.Materials, MaterialResource{name, desc, cost, qty, nil})
+	return a
+}
+
+// WithMaterialFromSupplier aggiunge un materiale fornito da un fornitore
+func (a *Activity) WithMaterialFromSupplier(name, desc string, cost, qty float64, supplier *Supplier) *Activity {
+	a.Materials = append(a.Materials, MaterialResource{name, desc, cost, qty, supplier})
 	return a
 }
 
 func (a *Activity) WithAsset(name, desc string, cost, qty float64) *Activity {
-	a.Assets = append(a.Assets, Asset{name, desc, cost, qty})
+	a.Assets = append(a.Assets, Asset{name, desc, cost, qty, nil})
 	return a
+}
+
+// WithAssetFromSupplier aggiunge un asset fornito da un fornitore
+func (a *Activity) WithAssetFromSupplier(name, desc string, cost, qty float64, supplier *Supplier) *Activity {
+	a.Assets = append(a.Assets, Asset{name, desc, cost, qty, supplier})
+	return a
+}
+
+// NewSupplier crea un nuovo fornitore (può essere riutilizzato)
+func NewSupplier(name, desc string, unitCost, availableQty float64, period PeriodType) *Supplier {
+	return &Supplier{
+		Name:              name,
+		Description:       desc,
+		UnitCost:          unitCost,
+		AvailableQuantity: availableQty,
+		Period:            period,
+	}
 }
 
 func (a *Activity) CanCrash(minDur int, extraCost float64) *Activity {

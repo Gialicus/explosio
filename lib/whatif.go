@@ -1,6 +1,7 @@
 package lib
 
 // ActivityOverride contiene override opzionali per un'attività (solo i campi impostati vengono applicati).
+// I fornitori non contribuiscono ai costi, servono solo per validare la capacità.
 type ActivityOverride struct {
 	Duration          *int
 	MinDuration       *int

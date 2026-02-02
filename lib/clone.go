@@ -1,5 +1,19 @@
 package lib
 
+// cloneSupplier crea una copia profonda di un fornitore
+func cloneSupplier(s *Supplier) *Supplier {
+	if s == nil {
+		return nil
+	}
+	return &Supplier{
+		Name:              s.Name,
+		Description:       s.Description,
+		UnitCost:          s.UnitCost,
+		AvailableQuantity: s.AvailableQuantity,
+		Period:            s.Period,
+	}
+}
+
 // CloneActivity restituisce una copia profonda dell'albero di attività radicato in root.
 // Il progetto originale non viene modificato.
 func CloneActivity(root *Activity) *Activity {
@@ -21,15 +35,33 @@ func CloneActivity(root *Activity) *Activity {
 	}
 	if len(root.Humans) > 0 {
 		clone.Humans = make([]HumanResource, len(root.Humans))
-		copy(clone.Humans, root.Humans)
+		for i, h := range root.Humans {
+			clone.Humans[i] = h
+			if h.Supplier != nil {
+				// Clona il fornitore per evitare mutazioni condivise
+				clone.Humans[i].Supplier = cloneSupplier(h.Supplier)
+			}
+		}
 	}
 	if len(root.Materials) > 0 {
 		clone.Materials = make([]MaterialResource, len(root.Materials))
-		copy(clone.Materials, root.Materials)
+		for i, m := range root.Materials {
+			clone.Materials[i] = m
+			if m.Supplier != nil {
+				// Clona il fornitore per evitare mutazioni condivise
+				clone.Materials[i].Supplier = cloneSupplier(m.Supplier)
+			}
+		}
 	}
 	if len(root.Assets) > 0 {
 		clone.Assets = make([]Asset, len(root.Assets))
-		copy(clone.Assets, root.Assets)
+		for i, as := range root.Assets {
+			clone.Assets[i] = as
+			if as.Supplier != nil {
+				// Clona il fornitore per evitare mutazioni condivise
+				clone.Assets[i].Supplier = cloneSupplier(as.Supplier)
+			}
+		}
 	}
 	if len(root.Next) > 0 {
 		clone.Next = make([]string, len(root.Next))
