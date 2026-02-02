@@ -1,3 +1,5 @@
+// Package lib fornisce funzionalità per l'analisi di progetti strutturati come alberi di attività.
+// Questo modulo gestisce l'analisi dei fornitori e il calcolo dei requisiti per scenari di produzione.
 package lib
 
 import "fmt"
@@ -150,20 +152,24 @@ func (e *AnalysisEngine) collectSupplierRequirementsRec(a *Activity, productionT
 	}
 }
 
-// ValidateSupplierUsage valida che le quantità utilizzate non superino la capacità disponibile dei fornitori
-func (e *AnalysisEngine) ValidateSupplierUsage(root *Activity) []error {
-	var errors []error
-	e.validateSupplierUsageRec(root, &errors)
-	return errors
+// ValidateSupplierUsage valida che le quantità utilizzate non superino la capacità disponibile dei fornitori.
+// Restituisce un ValidationErrors se ci sono errori, nil altrimenti.
+func (e *AnalysisEngine) ValidateSupplierUsage(root *Activity) error {
+	var ve ValidationErrors
+	e.validateSupplierUsageRec(root, &ve)
+	if ve.HasErrors() {
+		return &ve
+	}
+	return nil
 }
 
-func (e *AnalysisEngine) validateSupplierUsageRec(a *Activity, errors *[]error) {
+func (e *AnalysisEngine) validateSupplierUsageRec(a *Activity, ve *ValidationErrors) {
 	if a == nil {
 		return
 	}
 	for i, h := range a.Humans {
 		if h.Supplier != nil && h.Quantity > h.Supplier.AvailableQuantity {
-			*errors = append(*errors, fmt.Errorf(
+			ve.Add(fmt.Errorf(
 				"activity %s: human resource %d (%s) uses %.1f units but supplier %s only provides %.1f/%s",
 				a.ID, i, h.Role, h.Quantity, h.Supplier.Name,
 				h.Supplier.AvailableQuantity, h.Supplier.Period.String()))
@@ -171,7 +177,7 @@ func (e *AnalysisEngine) validateSupplierUsageRec(a *Activity, errors *[]error) 
 	}
 	for i, m := range a.Materials {
 		if m.Supplier != nil && m.Quantity > m.Supplier.AvailableQuantity {
-			*errors = append(*errors, fmt.Errorf(
+			ve.Add(fmt.Errorf(
 				"activity %s: material resource %d (%s) uses %.1f units but supplier %s only provides %.1f/%s",
 				a.ID, i, m.Name, m.Quantity, m.Supplier.Name,
 				m.Supplier.AvailableQuantity, m.Supplier.Period.String()))
@@ -179,13 +185,13 @@ func (e *AnalysisEngine) validateSupplierUsageRec(a *Activity, errors *[]error) 
 	}
 	for i, as := range a.Assets {
 		if as.Supplier != nil && as.Quantity > as.Supplier.AvailableQuantity {
-			*errors = append(*errors, fmt.Errorf(
+			ve.Add(fmt.Errorf(
 				"activity %s: asset resource %d (%s) uses %.1f units but supplier %s only provides %.1f/%s",
 				a.ID, i, as.Name, as.Quantity, as.Supplier.Name,
 				as.Supplier.AvailableQuantity, as.Supplier.Period.String()))
 		}
 	}
 	for _, sub := range a.SubActivities {
-		e.validateSupplierUsageRec(sub, errors)
+		e.validateSupplierUsageRec(sub, ve)
 	}
 }

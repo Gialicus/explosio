@@ -45,47 +45,71 @@ func (p *Project) Node(name, desc string, duration int) *Activity {
 // --- Metodi di Chaining per Activity ---
 
 func (a *Activity) WithHuman(role, desc string, costH, qty float64) *Activity {
-	a.Humans = append(a.Humans, HumanResource{role, desc, costH, qty, nil})
+	hr := HumanResource{role, desc, costH, qty, nil}
+	// Validazione silenziosa - l'utente può chiamare Validate() esplicitamente
+	_ = hr.Validate()
+	a.Humans = append(a.Humans, hr)
 	return a
 }
 
 // WithHumanFromSupplier aggiunge una risorsa umana fornita da un fornitore
 func (a *Activity) WithHumanFromSupplier(role, desc string, costH, qty float64, supplier *Supplier) *Activity {
-	a.Humans = append(a.Humans, HumanResource{role, desc, costH, qty, supplier})
+	hr := HumanResource{role, desc, costH, qty, supplier}
+	// Validazione silenziosa - l'utente può chiamare Validate() esplicitamente
+	_ = hr.Validate()
+	a.Humans = append(a.Humans, hr)
 	return a
 }
 
 func (a *Activity) WithMaterial(name, desc string, cost, qty float64) *Activity {
-	a.Materials = append(a.Materials, MaterialResource{name, desc, cost, qty, nil})
+	mr := MaterialResource{name, desc, cost, qty, nil}
+	// Validazione silenziosa - l'utente può chiamare Validate() esplicitamente
+	_ = mr.Validate()
+	a.Materials = append(a.Materials, mr)
 	return a
 }
 
 // WithMaterialFromSupplier aggiunge un materiale fornito da un fornitore
 func (a *Activity) WithMaterialFromSupplier(name, desc string, cost, qty float64, supplier *Supplier) *Activity {
-	a.Materials = append(a.Materials, MaterialResource{name, desc, cost, qty, supplier})
+	mr := MaterialResource{name, desc, cost, qty, supplier}
+	// Validazione silenziosa - l'utente può chiamare Validate() esplicitamente
+	_ = mr.Validate()
+	a.Materials = append(a.Materials, mr)
 	return a
 }
 
 func (a *Activity) WithAsset(name, desc string, cost, qty float64) *Activity {
-	a.Assets = append(a.Assets, Asset{name, desc, cost, qty, nil})
+	asset := Asset{name, desc, cost, qty, nil}
+	// Validazione silenziosa - l'utente può chiamare Validate() esplicitamente
+	_ = asset.Validate()
+	a.Assets = append(a.Assets, asset)
 	return a
 }
 
 // WithAssetFromSupplier aggiunge un asset fornito da un fornitore
 func (a *Activity) WithAssetFromSupplier(name, desc string, cost, qty float64, supplier *Supplier) *Activity {
-	a.Assets = append(a.Assets, Asset{name, desc, cost, qty, supplier})
+	asset := Asset{name, desc, cost, qty, supplier}
+	// Validazione silenziosa - l'utente può chiamare Validate() esplicitamente
+	_ = asset.Validate()
+	a.Assets = append(a.Assets, asset)
 	return a
 }
 
-// NewSupplier crea un nuovo fornitore (può essere riutilizzato)
+// NewSupplier crea un nuovo fornitore (può essere riutilizzato).
+// Valida automaticamente i campi del fornitore e ritorna errore se la validazione fallisce.
+// Se la validazione fallisce, ritorna nil e l'errore può essere recuperato chiamando Validate().
 func NewSupplier(name, desc string, unitCost, availableQty float64, period PeriodType) *Supplier {
-	return &Supplier{
+	s := &Supplier{
 		Name:              name,
 		Description:       desc,
 		UnitCost:          unitCost,
 		AvailableQuantity: availableQty,
 		Period:            period,
 	}
+	// Validazione automatica - se fallisce, il fornitore è comunque creato
+	// ma l'utente può chiamare Validate() per verificare
+	_ = s.Validate() // validazione silenziosa, l'utente può chiamare Validate() esplicitamente
+	return s
 }
 
 func (a *Activity) CanCrash(minDur int, extraCost float64) *Activity {

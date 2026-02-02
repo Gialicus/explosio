@@ -1,3 +1,5 @@
+// Package lib fornisce funzionalità per l'analisi di progetti strutturati come alberi di attività.
+// Questo modulo gestisce la validazione di attività e strutture di progetto.
 package lib
 
 import "fmt"

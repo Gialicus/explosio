@@ -1,6 +1,9 @@
 package lib
 
-import "testing"
+import (
+	"errors"
+	"testing"
+)
 
 func TestValidateSupplierUsage_Valid(t *testing.T) {
 	engine := &AnalysisEngine{}
@@ -13,9 +16,9 @@ func TestValidateSupplierUsage_Valid(t *testing.T) {
 	root.Materials = []MaterialResource{
 		{Name: "Material", UnitCost: 1, Quantity: 50, Supplier: supplier},
 	}
-	errors := engine.ValidateSupplierUsage(root)
-	if len(errors) != 0 {
-		t.Errorf("ValidateSupplierUsage valid: want 0 errors, got %d", len(errors))
+	err := engine.ValidateSupplierUsage(root)
+	if err != nil {
+		t.Errorf("ValidateSupplierUsage valid: want nil, got %v", err)
 	}
 }
 
@@ -30,12 +33,13 @@ func TestValidateSupplierUsage_ExceedsCapacity(t *testing.T) {
 	root.Materials = []MaterialResource{
 		{Name: "Material", UnitCost: 1, Quantity: 100, Supplier: supplier},
 	}
-	errors := engine.ValidateSupplierUsage(root)
-	if len(errors) != 1 {
-		t.Fatalf("ValidateSupplierUsage exceeds capacity: want 1 error, got %d", len(errors))
+	err := engine.ValidateSupplierUsage(root)
+	if err == nil {
+		t.Fatal("ValidateSupplierUsage exceeds capacity: want error, got nil")
 	}
-	if errors[0] == nil {
-		t.Error("error should not be nil")
+	var ve *ValidationErrors
+	if !errors.As(err, &ve) || len(ve.Errors) != 1 {
+		t.Errorf("ValidateSupplierUsage exceeds capacity: want ValidationErrors with 1 error, got %v", err)
 	}
 }
 
@@ -50,9 +54,9 @@ func TestValidateSupplierUsage_WithHuman(t *testing.T) {
 	root.Humans = []HumanResource{
 		{Role: "Worker", CostPerH: 20, Quantity: 3, Supplier: supplier},
 	}
-	errors := engine.ValidateSupplierUsage(root)
-	if len(errors) != 0 {
-		t.Errorf("ValidateSupplierUsage with human: want 0 errors, got %d", len(errors))
+	err := engine.ValidateSupplierUsage(root)
+	if err != nil {
+		t.Errorf("ValidateSupplierUsage with human: want nil, got %v", err)
 	}
 }
 
@@ -67,9 +71,9 @@ func TestValidateSupplierUsage_WithAsset(t *testing.T) {
 	root.Assets = []Asset{
 		{Name: "Machine", CostPerUse: 50, Quantity: 2, Supplier: supplier},
 	}
-	errors := engine.ValidateSupplierUsage(root)
-	if len(errors) != 0 {
-		t.Errorf("ValidateSupplierUsage with asset: want 0 errors, got %d", len(errors))
+	err := engine.ValidateSupplierUsage(root)
+	if err != nil {
+		t.Errorf("ValidateSupplierUsage with asset: want nil, got %v", err)
 	}
 }
 
@@ -88,9 +92,9 @@ func TestValidateSupplierUsage_Tree(t *testing.T) {
 	root.Materials = []MaterialResource{
 		{Name: "Material", UnitCost: 1, Quantity: 6, Supplier: supplier},
 	}
-	errors := engine.ValidateSupplierUsage(root)
-	if len(errors) != 0 {
-		t.Errorf("ValidateSupplierUsage tree: want 0 errors, got %d", len(errors))
+	err := engine.ValidateSupplierUsage(root)
+	if err != nil {
+		t.Errorf("ValidateSupplierUsage tree: want nil, got %v", err)
 	}
 }
 
@@ -221,4 +225,122 @@ func TestSupplier_GetDailyCapacity(t *testing.T) {
 	}
 	capacity := supplier.GetDailyCapacity()
 	assertFloatEqual(t, capacity, 100) // 700 / 7
+}
+
+func TestPeriodType_Invalid(t *testing.T) {
+	invalidPeriod := PeriodType("invalid")
+	if invalidPeriod.IsValid() {
+		t.Error("IsValid() should return false for invalid period")
+	}
+	minutes := invalidPeriod.ToMinutes()
+	if minutes != 0 {
+		t.Errorf("ToMinutes() should return 0 for invalid period, got %d", minutes)
+	}
+}
+
+func TestSupplier_Validate_NegativeQuantity(t *testing.T) {
+	supplier := &Supplier{
+		Name:              "Test",
+		AvailableQuantity: -10,
+		Period:            PeriodDay,
+	}
+	err := supplier.Validate()
+	if err == nil {
+		t.Fatal("Validate() should return error for negative quantity")
+	}
+	if !errors.Is(err, ErrNegativeQuantity) {
+		t.Errorf("Validate() should return ErrNegativeQuantity, got %v", err)
+	}
+}
+
+func TestSupplier_Validate_InvalidPeriod(t *testing.T) {
+	supplier := &Supplier{
+		Name:              "Test",
+		AvailableQuantity: 100,
+		Period:            PeriodType("invalid"),
+	}
+	err := supplier.Validate()
+	if err == nil {
+		t.Fatal("Validate() should return error for invalid period")
+	}
+	if !errors.Is(err, ErrInvalidPeriod) {
+		t.Errorf("Validate() should return ErrInvalidPeriod, got %v", err)
+	}
+}
+
+func TestHumanResource_Validate_NegativeCost(t *testing.T) {
+	hr := HumanResource{
+		Role:     "Worker",
+		CostPerH: -10,
+		Quantity: 1,
+	}
+	err := hr.Validate()
+	if err == nil {
+		t.Fatal("Validate() should return error for negative cost")
+	}
+	if !errors.Is(err, ErrNegativeCost) {
+		t.Errorf("Validate() should return ErrNegativeCost, got %v", err)
+	}
+}
+
+func TestMaterialResource_Validate_NegativeQuantity(t *testing.T) {
+	mr := MaterialResource{
+		Name:     "Material",
+		UnitCost:  10,
+		Quantity: -5,
+	}
+	err := mr.Validate()
+	if err == nil {
+		t.Fatal("Validate() should return error for negative quantity")
+	}
+	if !errors.Is(err, ErrNegativeQuantity) {
+		t.Errorf("Validate() should return ErrNegativeQuantity, got %v", err)
+	}
+}
+
+func TestCalculateSupplierRequirements_InvalidPeriod(t *testing.T) {
+	engine := &AnalysisEngine{}
+	invalidPeriod := PeriodType("invalid")
+	supplier := &Supplier{
+		Name:              "Test",
+		AvailableQuantity: 100,
+		Period:            invalidPeriod,
+	}
+	root := buildActivity("A", "A", 1, nil)
+	root.Materials = []MaterialResource{
+		{Name: "Material", UnitCost: 1, Quantity: 10, Supplier: supplier},
+	}
+	// Con periodo invalido, ToMinutes() ritorna 0, quindi la conversione fallisce
+	requirements := engine.CalculateSupplierRequirements(root, 100, PeriodDay)
+	// Dovrebbe ritornare lista vuota o gestire l'errore silenziosamente
+	if len(requirements) > 0 {
+		t.Logf("CalculateSupplierRequirements with invalid period returned %d requirements", len(requirements))
+	}
+}
+
+func TestValidateSupplierUsage_DeepTree(t *testing.T) {
+	engine := &AnalysisEngine{}
+	supplier := &Supplier{
+		Name:              "Test",
+		AvailableQuantity: 100,
+		Period:            PeriodDay,
+	}
+	// Crea un albero profondo
+	deep := buildActivity("D", "Deep", 1, nil)
+	deep.Materials = []MaterialResource{
+		{Name: "Material", UnitCost: 1, Quantity: 10, Supplier: supplier},
+	}
+	mid := buildActivity("M", "Mid", 1, []*Activity{deep})
+	mid.Materials = []MaterialResource{
+		{Name: "Material", UnitCost: 1, Quantity: 20, Supplier: supplier},
+	}
+	root := buildActivity("R", "Root", 1, []*Activity{mid})
+	root.Materials = []MaterialResource{
+		{Name: "Material", UnitCost: 1, Quantity: 30, Supplier: supplier},
+	}
+	// Totale: 60, sotto il limite di 100
+	err := engine.ValidateSupplierUsage(root)
+	if err != nil {
+		t.Errorf("ValidateSupplierUsage deep tree: want nil, got %v", err)
+	}
 }

@@ -16,4 +16,11 @@ package lib
 //   - supplier.go: analisi fornitori
 //   - validation.go: validazione
 //   - crashing.go: ottimizzazione crashing
+//
+// Esempio di utilizzo:
+//
+//	engine := &AnalysisEngine{}
+//	engine.ComputeCPM(root)
+//	cost := engine.GetTotalCost(root)
+//	fin := engine.GetFinancials(root, 100.0)
 type AnalysisEngine struct{}

@@ -50,3 +50,27 @@ func TestValidate_MinDurationGreaterThanDuration(t *testing.T) {
 		t.Errorf("error should mention min duration: %v", err)
 	}
 }
+
+func TestActivity_ValidateBasic(t *testing.T) {
+	root := buildActivity("A", "A", 10, nil)
+	err := root.ValidateBasic()
+	if err != nil {
+		t.Errorf("ValidateBasic valid: want nil, got %v", err)
+	}
+}
+
+func TestActivity_ValidateBasic_Nil(t *testing.T) {
+	var root *Activity
+	err := root.ValidateBasic()
+	if err == nil {
+		t.Fatal("ValidateBasic nil: want error")
+	}
+}
+
+func TestActivity_ValidateBasic_NegativeDuration(t *testing.T) {
+	root := buildActivity("A", "A", -5, nil)
+	err := root.ValidateBasic()
+	if err == nil {
+		t.Fatal("ValidateBasic negative duration: want error")
+	}
+}

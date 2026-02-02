@@ -1,3 +1,5 @@
+// Package lib fornisce funzionalità per l'analisi di progetti strutturati come alberi di attività.
+// Questo modulo gestisce l'ottimizzazione tramite crashing (compressione tempi).
 package lib
 
 import "sort"
@@ -24,7 +26,9 @@ type crashableActivity struct {
 
 // collectCrashableCritical raccoglie le attività critiche crashabili (Slack==0, Duration > MinDuration).
 func (e *AnalysisEngine) collectCrashableCritical(root *Activity) []crashableActivity {
-	var list []crashableActivity
+	// Stima: tutte le attività potrebbero essere critiche e crashabili
+	estimatedSize := countActivities(root)
+	list := make([]crashableActivity, 0, estimatedSize)
 	e.Walk(root, func(a *Activity) {
 		if a.Slack == 0 && a.Duration > a.MinDuration {
 			ts := a.Duration - a.MinDuration

@@ -1,20 +1,27 @@
+// Package lib fornisce funzionalità per l'analisi di progetti strutturati come alberi di attività.
+// Questo modulo gestisce il calcolo dei costi totali e il breakdown per categoria di risorse.
 package lib
 
 // Metodi helper per calcolo costi delle singole risorse
 
+// calculateResourceCost calcola il costo di una risorsa usando l'interfaccia Resource
+func calculateResourceCost(r Resource, duration int) float64 {
+	return r.GetCost(duration)
+}
+
 // calculateHumanCost calcola il costo di una risorsa umana
 func (e *AnalysisEngine) calculateHumanCost(h HumanResource, duration int) float64 {
-	return h.GetCost(duration)
+	return calculateResourceCost(h, duration)
 }
 
 // calculateMaterialCost calcola il costo di un materiale
 func (e *AnalysisEngine) calculateMaterialCost(m MaterialResource) float64 {
-	return m.GetCost(0) // duration non usato per materiali
+	return calculateResourceCost(m, 0) // duration non usato per materiali
 }
 
 // calculateAssetCost calcola il costo di un asset
 func (e *AnalysisEngine) calculateAssetCost(as Asset) float64 {
-	return as.GetCost(0) // duration non usato per asset
+	return calculateResourceCost(as, 0) // duration non usato per asset
 }
 
 // GetTotalCost calcola il costo totale ricorsivo della filiera

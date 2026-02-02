@@ -1,6 +1,20 @@
+// Package lib fornisce funzionalità per l'analisi di progetti strutturati come alberi di attività.
+// Questo modulo gestisce il calcolo CPM (Critical Path Method) e l'identificazione del cammino critico.
 package lib
 
 import "sort"
+
+// countActivities conta il numero totale di attività nell'albero
+func countActivities(root *Activity) int {
+	if root == nil {
+		return 0
+	}
+	count := 1
+	for _, sub := range root.SubActivities {
+		count += countActivities(sub)
+	}
+	return count
+}
 
 // ComputeCPM esegue il calcolo dei tempi e identifica il cammino critico
 func (e *AnalysisEngine) ComputeCPM(root *Activity) {
@@ -51,7 +65,9 @@ func (e *AnalysisEngine) GetCriticalPath(root *Activity) []*Activity {
 	if root == nil {
 		return nil
 	}
-	var path []*Activity
+	// Pre-alloca la slice con una stima (tutte le attività potrebbero essere critiche)
+	estimatedSize := countActivities(root)
+	path := make([]*Activity, 0, estimatedSize)
 	e.collectCritical(root, &path)
 	return path
 }
@@ -105,7 +121,9 @@ func (e *AnalysisEngine) ActivitiesByES(root *Activity) []*Activity {
 	if root == nil {
 		return nil
 	}
-	var list []*Activity
+	// Pre-alloca la slice con il numero esatto di attività
+	totalCount := countActivities(root)
+	list := make([]*Activity, 0, totalCount)
 	e.Walk(root, func(a *Activity) { list = append(list, a) })
 	sort.Slice(list, func(i, j int) bool {
 		if list[i].ES != list[j].ES {

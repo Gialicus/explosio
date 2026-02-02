@@ -1,3 +1,5 @@
+// Package lib fornisce funzionalità per l'analisi di progetti strutturati come alberi di attività.
+// Questo modulo gestisce l'analisi finanziaria (margini, markup, break-even).
 package lib
 
 // FinancialMetrics genera metriche basate su un prezzo di vendita target
