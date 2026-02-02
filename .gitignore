@@ -1,0 +1,45 @@
+# Binari
+*.exe
+*.exe~
+*.dll
+*.so
+*.dylib
+*.test
+*.out
+explosio
+
+# File di test
+*.test
+
+# File di copertura
+*.cover
+*.coverprofile
+coverage.txt
+coverage.html
+
+# Dipendenze
+vendor/
+
+# IDE e editor
+.idea/
+.vscode/
+*.swp
+*.swo
+*~
+.DS_Store
+
+# File temporanei
+*.tmp
+*.log
+
+# File di build
+/bin/
+/dist/
+
+# File di ambiente
+.env
+.env.local
+
+# Altri
+*.mmd.bak
+*.mmd~
