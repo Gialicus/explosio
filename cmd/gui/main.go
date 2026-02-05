@@ -1,28 +1,17 @@
 package main
 
 import (
-	"explosio/ui"
-
+	"fyne.io/fyne/v2"
 	"fyne.io/fyne/v2/app"
+	"fyne.io/fyne/v2/container"
+	"fyne.io/fyne/v2/widget"
 )
 
 func main() {
-	// Crea l'applicazione Fyne
 	myApp := app.NewWithID("com.explosio.app")
-	// Usa il tema di default di Fyne (rimosso ExplosioTheme per evitare ricorsione)
-
-	// Crea la finestra principale
-	window := myApp.NewWindow("Explosio - Analisi Progetti")
-	window.Resize(ui.WindowSize)
+	window := myApp.NewWindow("Explosio")
+	window.Resize(fyne.NewSize(800, 600))
 	window.CenterOnScreen()
-
-	// Crea lo stato dell'applicazione
-	appState := ui.NewAppState()
-
-	// Crea la dashboard principale
-	content := ui.NewDashboard(window, appState)
-	window.SetContent(content)
-
-	// Mostra la finestra
+	window.SetContent(container.NewCenter(widget.NewLabel("Explosio")))
 	window.ShowAndRun()
 }
