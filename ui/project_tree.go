@@ -84,25 +84,31 @@ func buildTreeContent(project *lib.Project, mainContent *fyne.Container) fyne.Ca
 		return len(a.SubActivities) > 0 || len(a.Humans) > 0 || len(a.Materials) > 0 || len(a.Assets) > 0
 	}
 
+	engine := &lib.AnalysisEngine{}
 	createNode := func(bool) fyne.CanvasObject {
 		return CreateTreeNodeTemplate()
 	}
 	updateNode := func(id widget.TreeNodeID, branch bool, obj fyne.CanvasObject) {
-		UpdateTreeNodeRow(id, branch, obj, activityMap)
+		UpdateTreeNodeRow(id, branch, obj, activityMap, engine)
 	}
 
 	tree = widget.NewTree(childUIDs, isBranch, createNode, updateNode)
 
 	tree.Root = widget.TreeNodeID(project.Root.ID)
 
-	// Pannello sotto l'albero: mostra campi editabili per il nodo selezionato
-	editPanel := container.NewVBox()
+	// Pannello sotto l'albero: Card "Modifica nodo" con form o messaggio se nessuna selezione
+	editCard := widget.NewCard("Modifica nodo", "", container.NewCenter(
+		widget.NewLabel("Seleziona un'attività o una risorsa nell'albero per modificarla."),
+	))
 	updateEditPanel := func() {
-		editPanel.RemoveAll()
-		for _, o := range BuildEditPanelContent(selectedID, activityMap, refresh) {
-			editPanel.Add(o)
+		objs := BuildEditPanelContent(selectedID, activityMap, refresh)
+		if len(objs) == 0 {
+			editCard.SetContent(container.NewCenter(
+				widget.NewLabel("Seleziona un'attività o una risorsa nell'albero per modificarla."),
+			))
+		} else {
+			editCard.SetContent(container.NewVBox(objs...))
 		}
-		editPanel.Refresh()
 	}
 
 	tree.OnSelected = func(id widget.TreeNodeID) {
@@ -122,7 +128,7 @@ func buildTreeContent(project *lib.Project, mainContent *fyne.Container) fyne.Ca
 	toolbar := NewProjectTreeToolbar(project, getActivityMap, &selectedID, refresh, getWindow)
 
 	treeScroll := container.NewScroll(tree)
-	// Pannello edit sotto l'albero (vuoto finché non si seleziona un nodo)
 	updateEditPanel()
-	return container.NewBorder(toolbar, editPanel, nil, nil, treeScroll)
+	editPanelWithPadding := container.NewPadded(editCard)
+	return container.NewBorder(toolbar, editPanelWithPadding, nil, nil, treeScroll)
 }

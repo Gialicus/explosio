@@ -6,6 +6,7 @@ import (
 
 	"fyne.io/fyne/v2"
 	"fyne.io/fyne/v2/container"
+	"fyne.io/fyne/v2/layout"
 	"fyne.io/fyne/v2/widget"
 )
 
@@ -99,7 +100,10 @@ func NewProjectTreeToolbar(project *lib.Project, getActivityMap func() map[strin
 	}
 
 	return container.NewHBox(
+		widget.NewLabel("Attività:"),
 		widget.NewButton("Aggiungi sotto-attività", addSubActivity),
+		layout.NewSpacer(),
+		widget.NewLabel("Risorse:"),
 		widget.NewButton("Aggiungi risorsa umana", addHuman),
 		widget.NewButton("Aggiungi materiale", addMaterial),
 		widget.NewButton("Aggiungi asset", addAsset),
