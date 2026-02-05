@@ -21,7 +21,6 @@ type Dashboard struct {
 	window   fyne.Window
 	appState *AppState
 	content  *container.AppTabs
-	sidebar  *widget.List
 }
 
 // NewDashboard crea una nuova dashboard
