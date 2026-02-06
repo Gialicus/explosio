@@ -16,11 +16,17 @@ func main() {
 	window.CenterOnScreen()
 
 	project := lib.NewProject()
-	progettoContent := ui.NewProjectTab(project)
-	simulazioneContent := container.NewStack()
+	simulazioneContainer := container.NewStack()
+	refreshSimulazione := func() {
+		simulazioneContainer.RemoveAll()
+		simulazioneContainer.Add(ui.NewSimulationTab(project))
+		simulazioneContainer.Refresh()
+	}
+	refreshSimulazione()
+	progettoContent := ui.NewProjectTab(project, refreshSimulazione)
 	tabs := container.NewAppTabs(
 		container.NewTabItem("Progetto", progettoContent),
-		container.NewTabItem("Simulazione", simulazioneContent),
+		container.NewTabItem("Simulazione", simulazioneContainer),
 	)
 	window.SetContent(tabs)
 

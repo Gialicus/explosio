@@ -10,7 +10,8 @@ import (
 )
 
 // NewProjectTab restituisce il contenuto del tab Progetto: albero attività/risorse o stato vuoto.
-func NewProjectTab(project *lib.Project) fyne.CanvasObject {
+// Se onProjectChange non è nil, viene chiamato quando l'utente aggiunge un'attività radice (per aggiornare altri tab, es. Simulazione).
+func NewProjectTab(project *lib.Project, onProjectChange func()) fyne.CanvasObject {
 	mainContent := container.NewStack()
 
 	emptyState := container.NewCenter(container.NewVBox(
@@ -21,6 +22,9 @@ func NewProjectTab(project *lib.Project) fyne.CanvasObject {
 			mainContent.RemoveAll()
 			mainContent.Add(treeContent)
 			mainContent.Refresh()
+			if onProjectChange != nil {
+				onProjectChange()
+			}
 		}),
 	))
 
@@ -84,12 +88,11 @@ func buildTreeContent(project *lib.Project, mainContent *fyne.Container) fyne.Ca
 		return len(a.SubActivities) > 0 || len(a.Humans) > 0 || len(a.Materials) > 0 || len(a.Assets) > 0
 	}
 
-	engine := &lib.AnalysisEngine{}
 	createNode := func(bool) fyne.CanvasObject {
 		return CreateTreeNodeTemplate()
 	}
 	updateNode := func(id widget.TreeNodeID, branch bool, obj fyne.CanvasObject) {
-		UpdateTreeNodeRow(id, branch, obj, activityMap, engine)
+		UpdateTreeNodeRow(id, branch, obj, activityMap)
 	}
 
 	tree = widget.NewTree(childUIDs, isBranch, createNode, updateNode)
