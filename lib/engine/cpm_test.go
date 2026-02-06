@@ -141,24 +141,3 @@ func TestActivitiesByES(t *testing.T) {
 		}
 	}
 }
-
-func TestPeriodType_ToMinutes_Invalid(t *testing.T) {
-	invalidPeriod := domain.PeriodType("invalid")
-	minutes := invalidPeriod.ToMinutes()
-	if minutes != 0 {
-		t.Errorf("ToMinutes() for invalid period should return 0, got %d", minutes)
-	}
-}
-
-func TestPeriodType_IsValid(t *testing.T) {
-	validPeriods := []domain.PeriodType{domain.PeriodMinute, domain.PeriodHour, domain.PeriodDay, domain.PeriodWeek, domain.PeriodMonth, domain.PeriodYear}
-	for _, p := range validPeriods {
-		if !p.IsValid() {
-			t.Errorf("IsValid() should return true for %s", p)
-		}
-	}
-	invalidPeriod := domain.PeriodType("invalid")
-	if invalidPeriod.IsValid() {
-		t.Error("IsValid() should return false for invalid period")
-	}
-}

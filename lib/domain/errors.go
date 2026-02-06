@@ -16,9 +16,6 @@ var (
 
 	// ErrInvalidActivity indica che un'attività non è valida
 	ErrInvalidActivity = fmt.Errorf("invalid activity")
-
-	// ErrInvalidSupplier indica che un fornitore non è valido
-	ErrInvalidSupplier = fmt.Errorf("invalid supplier")
 )
 
 // ValidationErrors raccoglie multiple errori di validazione

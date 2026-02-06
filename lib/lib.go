@@ -14,28 +14,16 @@ import (
 
 // Tipi di dominio (alias)
 type (
-	Activity        = domain.Activity
-	Project         = domain.Project
-	Supplier        = domain.Supplier
-	PeriodType      = domain.PeriodType
-	Resource        = domain.Resource
-	HumanResource   = domain.HumanResource
+	Activity         = domain.Activity
+	Project          = domain.Project
+	Resource         = domain.Resource
+	HumanResource    = domain.HumanResource
 	MaterialResource = domain.MaterialResource
-	Asset           = domain.Asset
+	Asset            = domain.Asset
 	ValidationErrors = domain.ValidationErrors
 )
 
-// Costanti di periodo
-const (
-	PeriodMinute = domain.PeriodMinute
-	PeriodHour   = domain.PeriodHour
-	PeriodDay    = domain.PeriodDay
-	PeriodWeek   = domain.PeriodWeek
-	PeriodMonth  = domain.PeriodMonth
-	PeriodYear   = domain.PeriodYear
-)
-
-// Altre costanti
+// Costanti temporali
 const (
 	MinutesPerHour  = domain.MinutesPerHour
 	MinutesPerDay   = domain.MinutesPerDay
@@ -53,23 +41,17 @@ var (
 	ErrNegativeQuantity = domain.ErrNegativeQuantity
 	ErrNegativeCost    = domain.ErrNegativeCost
 	ErrInvalidActivity = domain.ErrInvalidActivity
-	ErrInvalidSupplier = domain.ErrInvalidSupplier
 )
 
 // Costruttori dominio
-var (
-	NewProject  = domain.NewProject
-	NewSupplier = domain.NewSupplier
-)
+var NewProject = domain.NewProject
 
 // Engine e tipi di output
 type (
-	AnalysisEngine     = engine.AnalysisEngine
-	CostBreakdown      = engine.CostBreakdown
-	FinancialMetrics   = engine.FinancialMetrics
-	CPMSummary         = engine.CPMSummary
-	SupplierRequirement = engine.SupplierRequirement
-	ProductionRequirement = engine.ProductionRequirement
+	AnalysisEngine   = engine.AnalysisEngine
+	CostBreakdown    = engine.CostBreakdown
+	FinancialMetrics = engine.FinancialMetrics
+	CPMSummary       = engine.CPMSummary
 )
 
 // Whatif
@@ -118,14 +100,4 @@ func GenerateMermaid(root *Activity) string {
 
 func WriteMermaidToFile(root *Activity, path string) error {
 	return mermaid.WriteMermaidToFile(root, path)
-}
-
-func PrintSupplierRequirements(requirements []SupplierRequirement) {
-	presenter.PrintSupplierRequirements(requirements)
-}
-
-func PrintSupplierRequirementsTo(w interface {
-	Write([]byte) (int, error)
-}, requirements []SupplierRequirement) {
-	presenter.PrintSupplierRequirementsTo(w, requirements)
 }

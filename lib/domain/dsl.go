@@ -45,58 +45,24 @@ func (p *Project) Node(name, desc string, duration int) *Activity {
 }
 
 func (a *Activity) WithHuman(role, desc string, costH, qty float64) *Activity {
-	hr := HumanResource{role, desc, costH, qty, nil}
-	_ = hr.Validate()
-	a.Humans = append(a.Humans, hr)
-	return a
-}
-
-func (a *Activity) WithHumanFromSupplier(role, desc string, costH, qty float64, supplier *Supplier) *Activity {
-	hr := HumanResource{role, desc, costH, qty, supplier}
+	hr := HumanResource{role, desc, costH, qty}
 	_ = hr.Validate()
 	a.Humans = append(a.Humans, hr)
 	return a
 }
 
 func (a *Activity) WithMaterial(name, desc string, cost, qty float64) *Activity {
-	mr := MaterialResource{name, desc, cost, qty, nil}
-	_ = mr.Validate()
-	a.Materials = append(a.Materials, mr)
-	return a
-}
-
-func (a *Activity) WithMaterialFromSupplier(name, desc string, cost, qty float64, supplier *Supplier) *Activity {
-	mr := MaterialResource{name, desc, cost, qty, supplier}
+	mr := MaterialResource{name, desc, cost, qty}
 	_ = mr.Validate()
 	a.Materials = append(a.Materials, mr)
 	return a
 }
 
 func (a *Activity) WithAsset(name, desc string, cost, qty float64) *Activity {
-	asset := Asset{name, desc, cost, qty, nil}
+	asset := Asset{name, desc, cost, qty}
 	_ = asset.Validate()
 	a.Assets = append(a.Assets, asset)
 	return a
-}
-
-func (a *Activity) WithAssetFromSupplier(name, desc string, cost, qty float64, supplier *Supplier) *Activity {
-	asset := Asset{name, desc, cost, qty, supplier}
-	_ = asset.Validate()
-	a.Assets = append(a.Assets, asset)
-	return a
-}
-
-// NewSupplier crea un nuovo fornitore (può essere riutilizzato).
-func NewSupplier(name, desc string, unitCost, availableQty float64, period PeriodType) *Supplier {
-	s := &Supplier{
-		Name:              name,
-		Description:       desc,
-		UnitCost:          unitCost,
-		AvailableQuantity: availableQty,
-		Period:            period,
-	}
-	_ = s.Validate()
-	return s
 }
 
 func (a *Activity) CanCrash(minDur int, extraCost float64) *Activity {

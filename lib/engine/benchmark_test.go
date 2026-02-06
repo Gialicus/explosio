@@ -80,50 +80,6 @@ func BenchmarkGetTotalCost_Complex(b *testing.B) {
 	}
 }
 
-func BenchmarkCalculateSupplierRequirements_Simple(b *testing.B) {
-	supplier := &domain.Supplier{
-		Name:              "Test",
-		AvailableQuantity: 1000,
-		Period:            domain.PeriodDay,
-	}
-	root := domain.BuildActivityForTest("A", "A", 1, nil)
-	root.Materials = []domain.MaterialResource{
-		{Name: "Material", UnitCost: 1, Quantity: 10, Supplier: supplier},
-	}
-	eng := &AnalysisEngine{}
-	b.ResetTimer()
-	for i := 0; i < b.N; i++ {
-		_ = eng.CalculateSupplierRequirements(root, 100, domain.PeriodDay)
-	}
-}
-
-func BenchmarkCalculateSupplierRequirements_Multiple(b *testing.B) {
-	suppliers := make([]*domain.Supplier, 10)
-	for i := 0; i < 10; i++ {
-		suppliers[i] = &domain.Supplier{
-			Name:              "Supplier",
-			AvailableQuantity: 1000,
-			Period:            domain.PeriodDay,
-		}
-	}
-	root := buildWideTree(10)
-	var addSuppliers func(*domain.Activity, int)
-	addSuppliers = func(a *domain.Activity, idx int) {
-		a.Materials = []domain.MaterialResource{
-			{Name: "Material", UnitCost: 1, Quantity: 10, Supplier: suppliers[idx%10]},
-		}
-		for i, sub := range a.SubActivities {
-			addSuppliers(sub, (idx+i)%10)
-		}
-	}
-	addSuppliers(root, 0)
-	eng := &AnalysisEngine{}
-	b.ResetTimer()
-	for i := 0; i < b.N; i++ {
-		_ = eng.CalculateSupplierRequirements(root, 100, domain.PeriodDay)
-	}
-}
-
 func BenchmarkGetCriticalPath(b *testing.B) {
 	root := buildDeepTree(4, 3)
 	eng := &AnalysisEngine{}

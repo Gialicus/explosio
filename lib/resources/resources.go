@@ -30,15 +30,6 @@ func WalkResources(root *domain.Activity, f func(*domain.Activity, domain.Resour
 	})
 }
 
-// ForEachResourceWithSupplier chiama f solo per le risorse con fornitore non nil.
-func ForEachResourceWithSupplier(a *domain.Activity, f func(domain.Resource, *domain.Supplier)) {
-	ForEachResource(a, func(r domain.Resource) {
-		if s := r.GetSupplier(); s != nil {
-			f(r, s)
-		}
-	})
-}
-
 // ResourceDisplayName restituisce un nome di visualizzazione per la risorsa (per messaggi di errore o report).
 func ResourceDisplayName(r domain.Resource) string {
 	switch x := r.(type) {
