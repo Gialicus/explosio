@@ -10,7 +10,7 @@ type ActivityBuilder struct {
 // NewActivityBuilder creates a new activity builder with empty name and description, zero duration and zero EUR price.
 func NewActivityBuilder() *ActivityBuilder {
 	return &ActivityBuilder{
-		activity: NewActivity("", ""),
+		activity: NewActivity("", "", *unit.NewDuration(0, unit.DurationUnitHour), *unit.NewPrice(0, "EUR")),
 	}
 }
 

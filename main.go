@@ -11,81 +11,168 @@ import (
 // main builds a sample activity tree (home renovation), prints it with PrettyPrint, and shows totals and critical path.
 func main() {
 	// Level 1 (root)
-	homeRenovation := core.NewActivity("Home Renovation", "Complete home renovation project")
-	homeRenovation.SetDuration(unit.Duration{Value: 40, Unit: unit.DurationUnitDay})
-	homeRenovation.SetPrice(unit.Price{Value: 50000, Currency: "EUR"})
+	homeRenovation := core.NewActivityBuilder().
+		WithName("Home Renovation").
+		WithDescription("Complete home renovation project").
+		WithDuration(*unit.NewDuration(40, unit.DurationUnitDay)).
+		WithPrice(*unit.NewPrice(50000, "EUR")).
+		Build()
 
 	// Level 2
-	kitchen := core.NewActivity("Kitchen Renovation", "Kitchen remodeling")
-	kitchen.SetDuration(unit.Duration{Value: 15, Unit: unit.DurationUnitDay})
-	kitchen.SetPrice(unit.Price{Value: 20000, Currency: "EUR"})
+	kitchen := core.NewActivityBuilder().
+		WithName("Kitchen Renovation").
+		WithDescription("Kitchen remodeling").
+		WithDuration(*unit.NewDuration(15, unit.DurationUnitDay)).
+		WithPrice(*unit.NewPrice(20000, "EUR")).
+		Build()
 
-	bathroom := core.NewActivity("Bathroom Renovation", "Bathroom remodeling")
-	bathroom.SetDuration(unit.Duration{Value: 10, Unit: unit.DurationUnitDay})
-	bathroom.SetPrice(unit.Price{Value: 12000, Currency: "EUR"})
+	bathroom := core.NewActivityBuilder().
+		WithName("Bathroom Renovation").
+		WithDescription("Bathroom remodeling").
+		WithDuration(*unit.NewDuration(10, unit.DurationUnitDay)).
+		WithPrice(*unit.NewPrice(12000, "EUR")).
+		Build()
 
 	// Level 3
-	installPipes := core.NewActivity("Install pipes", "Plumbing installation in kitchen")
-	installPipes.SetDuration(unit.Duration{Value: 3, Unit: unit.DurationUnitDay})
-	installPipes.SetPrice(unit.Price{Value: 2500, Currency: "EUR"})
+	installPipes := core.NewActivityBuilder().
+		WithName("Install pipes").
+		WithDescription("Plumbing installation in kitchen").
+		WithDuration(*unit.NewDuration(3, unit.DurationUnitDay)).
+		WithPrice(*unit.NewPrice(2500, "EUR")).
+		Build()
 
-	installElectrical := core.NewActivity("Install electrical", "Electrical wiring in kitchen")
-	installElectrical.SetDuration(unit.Duration{Value: 2, Unit: unit.DurationUnitDay})
-	installElectrical.SetPrice(unit.Price{Value: 1800, Currency: "EUR"})
+	installElectrical := core.NewActivityBuilder().
+		WithName("Install electrical").
+		WithDescription("Electrical wiring in kitchen").
+		WithDuration(*unit.NewDuration(2, unit.DurationUnitDay)).
+		WithPrice(*unit.NewPrice(1800, "EUR")).
+		Build()
 
-	installTiles := core.NewActivity("Install tiles", "Tile installation in bathroom")
-	installTiles.SetDuration(unit.Duration{Value: 4, Unit: unit.DurationUnitDay})
-	installTiles.SetPrice(unit.Price{Value: 3500, Currency: "EUR"})
+	installTiles := core.NewActivityBuilder().
+		WithName("Install tiles").
+		WithDescription("Tile installation in bathroom").
+		WithDuration(*unit.NewDuration(4, unit.DurationUnitDay)).
+		WithPrice(*unit.NewPrice(3500, "EUR")).
+		Build()
 
 	// Level 4
-	cutAndFitPipes := core.NewActivity("Cut and fit pipes", "Cut and fit pipes to length")
-	cutAndFitPipes.SetDuration(unit.Duration{Value: 1.5, Unit: unit.DurationUnitDay})
-	cutAndFitPipes.SetPrice(unit.Price{Value: 300, Currency: "EUR"})
+	cutAndFitPipes := core.NewActivityBuilder().
+		WithName("Cut and fit pipes").
+		WithDescription("Cut and fit pipes to length").
+		WithDuration(*unit.NewDuration(1.5, unit.DurationUnitDay)).
+		WithPrice(*unit.NewPrice(300, "EUR")).
+		Build()
 
-	weldJoints := core.NewActivity("Weld joints", "Weld pipe joints")
-	weldJoints.SetDuration(unit.Duration{Value: 1, Unit: unit.DurationUnitDay})
-	weldJoints.SetPrice(unit.Price{Value: 250, Currency: "EUR"})
+	weldJoints := core.NewActivityBuilder().
+		WithName("Weld joints").
+		WithDescription("Weld pipe joints").
+		WithDuration(*unit.NewDuration(1, unit.DurationUnitDay)).
+		WithPrice(*unit.NewPrice(250, "EUR")).
+		Build()
 
-	runCables := core.NewActivity("Run cables", "Run electrical cables through walls")
-	runCables.SetDuration(unit.Duration{Value: 1, Unit: unit.DurationUnitDay})
-	runCables.SetPrice(unit.Price{Value: 200, Currency: "EUR"})
+	runCables := core.NewActivityBuilder().
+		WithName("Run cables").
+		WithDescription("Run electrical cables through walls").
+		WithDuration(*unit.NewDuration(1, unit.DurationUnitDay)).
+		WithPrice(*unit.NewPrice(200, "EUR")).
+		Build()
 
-	mountSwitches := core.NewActivity("Mount switches", "Mount light switches and outlets")
-	mountSwitches.SetDuration(unit.Duration{Value: 0.5, Unit: unit.DurationUnitDay})
-	mountSwitches.SetPrice(unit.Price{Value: 150, Currency: "EUR"})
+	mountSwitches := core.NewActivityBuilder().
+		WithName("Mount switches").
+		WithDescription("Mount light switches and outlets").
+		WithDuration(*unit.NewDuration(0.5, unit.DurationUnitDay)).
+		WithPrice(*unit.NewPrice(150, "EUR")).
+		Build()
 
-	prepareSurface := core.NewActivity("Prepare surface", "Prepare floor surface for tiling")
-	prepareSurface.SetDuration(unit.Duration{Value: 1, Unit: unit.DurationUnitDay})
-	prepareSurface.SetPrice(unit.Price{Value: 180, Currency: "EUR"})
+	prepareSurface := core.NewActivityBuilder().
+		WithName("Prepare surface").
+		WithDescription("Prepare floor surface for tiling").
+		WithDuration(*unit.NewDuration(1, unit.DurationUnitDay)).
+		WithPrice(*unit.NewPrice(180, "EUR")).
+		Build()
 
-	applyAdhesiveAndLayTiles := core.NewActivity("Apply adhesive and lay tiles", "Apply adhesive and lay floor tiles")
-	applyAdhesiveAndLayTiles.SetDuration(unit.Duration{Value: 2, Unit: unit.DurationUnitDay})
-	applyAdhesiveAndLayTiles.SetPrice(unit.Price{Value: 400, Currency: "EUR"})
+	applyAdhesiveAndLayTiles := core.NewActivityBuilder().
+		WithName("Apply adhesive and lay tiles").
+		WithDescription("Apply adhesive and lay floor tiles").
+		WithDuration(*unit.NewDuration(2, unit.DurationUnitDay)).
+		WithPrice(*unit.NewPrice(400, "EUR")).
+		Build()
 
 	// Level 5
-	measureAndMark := core.NewActivity("Measure and mark", "Measure and mark pipe cut points")
-	measureAndMark.SetDuration(unit.Duration{Value: 1, Unit: unit.DurationUnitDay})
-	measureAndMark.SetPrice(unit.Price{Value: 100, Currency: "EUR"})
+	measureAndMark := core.NewActivityBuilder().
+		WithName("Measure and mark").
+		WithDescription("Measure and mark pipe cut points").
+		WithDuration(*unit.NewDuration(1, unit.DurationUnitDay)).
+		WithPrice(*unit.NewPrice(100, "EUR")).
+		Build()
 
-	applyGrout := core.NewActivity("Apply grout", "Apply grout between tiles")
-	applyGrout.SetDuration(unit.Duration{Value: 0.5, Unit: unit.DurationUnitDay})
-	applyGrout.SetPrice(unit.Price{Value: 80, Currency: "EUR"})
+	applyGrout := core.NewActivityBuilder().
+		WithName("Apply grout").
+		WithDescription("Apply grout between tiles").
+		WithDuration(*unit.NewDuration(0.5, unit.DurationUnitDay)).
+		WithPrice(*unit.NewPrice(80, "EUR")).
+		Build()
 
-	// Materials
-	// installPipes: pipes (complex), cement (measurable), screws (countable)
-	pipeUnit := material.NewMeasurableMaterial("Pipe 2m", "Copper pipe 2m", unit.Price{Value: 50, Currency: "EUR"}, unit.MeasurableQuantity{Value: 2, Unit: unit.UnitMeter})
-	pipes := material.NewComplexMaterial("Pipes", "Plumbing pipes", unit.Price{Value: 100, Currency: "EUR"}, 5, pipeUnit)
-	cement := material.NewMeasurableMaterial("Cement", "Bags of cement", unit.Price{Value: 15, Currency: "EUR"}, unit.MeasurableQuantity{Value: 50, Unit: unit.UnitKilogram})
-	screwsPipes := material.NewCountableMaterial("Screws", "Pipe mounting screws", unit.Price{Value: 0.5, Currency: "EUR"}, 80)
+	// Materials: installPipes — pipes (complex), cement (measurable), screws (countable)
+	pipeUnit := material.NewMeasurableMaterialBuilder().
+		WithName("Pipe 2m").
+		WithDescription("Copper pipe 2m").
+		WithPrice(*unit.NewPrice(50, "EUR")).
+		WithQuantity(*unit.NewMeasurableQuantity(2, unit.UnitMeter)).
+		Build()
+	pipes := material.NewComplexMaterialBuilder().
+		WithName("Pipes").
+		WithDescription("Plumbing pipes").
+		WithPrice(*unit.NewPrice(100, "EUR")).
+		WithUnitQuantity(5).
+		WithMeasurableMaterial(pipeUnit).
+		Build()
+	cement := material.NewMeasurableMaterialBuilder().
+		WithName("Cement").
+		WithDescription("Bags of cement").
+		WithPrice(*unit.NewPrice(15, "EUR")).
+		WithQuantity(*unit.NewMeasurableQuantity(50, unit.UnitKilogram)).
+		Build()
+	screwsPipes := material.NewCountableMaterialBuilder().
+		WithName("Screws").
+		WithDescription("Pipe mounting screws").
+		WithPrice(*unit.NewPrice(0.5, "EUR")).
+		WithQuantity(80).
+		Build()
 
 	// installElectrical: cable (measurable), switches (countable)
-	electricalCable := material.NewMeasurableMaterial("Electrical cable", "Copper electrical cable", unit.Price{Value: 2, Currency: "EUR"}, unit.MeasurableQuantity{Value: 100, Unit: unit.UnitMeter})
-	switches := material.NewCountableMaterial("Light switches", "Double light switches", unit.Price{Value: 25, Currency: "EUR"}, 4)
+	electricalCable := material.NewMeasurableMaterialBuilder().
+		WithName("Electrical cable").
+		WithDescription("Copper electrical cable").
+		WithPrice(*unit.NewPrice(2, "EUR")).
+		WithQuantity(*unit.NewMeasurableQuantity(100, unit.UnitMeter)).
+		Build()
+	switches := material.NewCountableMaterialBuilder().
+		WithName("Light switches").
+		WithDescription("Double light switches").
+		WithPrice(*unit.NewPrice(25, "EUR")).
+		WithQuantity(4).
+		Build()
 
 	// installTiles: tiles (measurable), grout (measurable), screws (countable)
-	tiles := material.NewMeasurableMaterial("Tiles", "Ceramic floor tiles", unit.Price{Value: 35, Currency: "EUR"}, unit.MeasurableQuantity{Value: 15, Unit: unit.UnitSquareMeter})
-	grout := material.NewMeasurableMaterial("Grout", "Tile grout", unit.Price{Value: 8, Currency: "EUR"}, unit.MeasurableQuantity{Value: 10, Unit: unit.UnitKilogram})
-	screwsTiles := material.NewCountableMaterial("Tile anchors", "Wall anchors for tiles", unit.Price{Value: 0.2, Currency: "EUR"}, 50)
+	tiles := material.NewMeasurableMaterialBuilder().
+		WithName("Tiles").
+		WithDescription("Ceramic floor tiles").
+		WithPrice(*unit.NewPrice(35, "EUR")).
+		WithQuantity(*unit.NewMeasurableQuantity(15, unit.UnitSquareMeter)).
+		Build()
+	grout := material.NewMeasurableMaterialBuilder().
+		WithName("Grout").
+		WithDescription("Tile grout").
+		WithPrice(*unit.NewPrice(8, "EUR")).
+		WithQuantity(*unit.NewMeasurableQuantity(10, unit.UnitKilogram)).
+		Build()
+	screwsTiles := material.NewCountableMaterialBuilder().
+		WithName("Tile anchors").
+		WithDescription("Wall anchors for tiles").
+		WithPrice(*unit.NewPrice(0.2, "EUR")).
+		WithQuantity(50).
+		Build()
 
 	// Build tree
 	installPipes.AddActivity(cutAndFitPipes)

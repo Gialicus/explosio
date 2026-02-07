@@ -19,12 +19,12 @@ type Activity struct {
 }
 
 // NewActivity creates an activity with name and description, zero duration and zero EUR price.
-func NewActivity(name string, description string) *Activity {
+func NewActivity(name string, description string, duration unit.Duration, price unit.Price) *Activity {
 	return &Activity{
 		Name:        name,
 		Description: description,
-		Duration:    *unit.NewDuration(0, unit.DurationUnitHour),
-		Price:       *unit.NewPrice(0, "EUR"),
+		Duration:    duration,
+		Price:       price,
 	}
 }
 
@@ -59,4 +59,3 @@ func (a *Activity) AddCountableMaterial(countableMaterial *material.CountableMat
 func (a *Activity) AddMeasurableMaterial(measurableMaterial *material.MeasurableMaterial) {
 	a.MeasurableMaterials = append(a.MeasurableMaterials, measurableMaterial)
 }
-
