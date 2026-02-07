@@ -68,7 +68,7 @@ func main() {
 	installTiles.AddMeasurableMaterial(grout)
 	installTiles.AddCountableMaterial(screwsTiles)
 
-	core.PrettyPrint([]*core.Activity{homeRenovation})
+	core.PrettyPrint([]*core.Activity{homeRenovation}, homeRenovation.CalculateCriticalPath())
 	fmt.Printf("\nTotal price: %.2f EUR\n", homeRenovation.CalculatePrice())
 	fmt.Printf("Total duration: %.0f days\n", homeRenovation.CalculateDuration())
 	fmt.Printf("Total quantity: %d\n", homeRenovation.CalculateQuantity())

@@ -101,3 +101,37 @@ func (a *Activity) CalculateQuantity() int {
 	}
 	return quantity
 }
+
+/*
+Critical Path (classic CPM interpretation).
+
+When sub-activities are considered in parallel, the critical path is the longest
+path from the root activity to any leaf. It determines the minimum project
+duration: any delay on this path delays the whole project.
+*/
+func (a *Activity) CalculateCriticalPath() []*Activity {
+	path, _ := a.criticalPathAndDuration()
+	return path
+}
+
+// criticalPathAndDuration returns the critical path and its total duration in hours.
+// For a leaf (no children), the path is just this activity.
+// For a node with children, it picks the child whose subtree has the longest
+// total duration and appends that child's critical path to this activity.
+func (a *Activity) criticalPathAndDuration() ([]*Activity, float64) {
+	myHours := a.Duration.ToHours()
+	if len(a.Activities) == 0 {
+		return []*Activity{a}, myHours
+	}
+	var bestPath []*Activity
+	bestHours := -1.0
+	for _, child := range a.Activities {
+		childPath, childHours := child.criticalPathAndDuration()
+		total := myHours + childHours
+		if total > bestHours {
+			bestHours = total
+			bestPath = childPath
+		}
+	}
+	return append([]*Activity{a}, bestPath...), bestHours
+}

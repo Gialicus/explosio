@@ -57,7 +57,7 @@ func prettyPrintMeasurableMaterials(materials []*material.MeasurableMaterial, pr
 	}
 }
 
-func prettyPrintRecursive(activities []*Activity, prefix string, showConnector bool) {
+func prettyPrintRecursive(activities []*Activity, prefix string, showConnector bool, criticalSet map[*Activity]bool) {
 	for i, activity := range activities {
 		isLastItem := i == len(activities)-1
 		connector := newConnector(showConnector, "", isLastItem)
@@ -67,17 +67,30 @@ func prettyPrintRecursive(activities []*Activity, prefix string, showConnector b
 		duration := fmt.Sprintf("%.0f %s", activity.CalculateDuration(), activity.Duration.Unit)
 		totalFmt := " (" + price + " - " + duration + ")"
 		ownFmt := " [" + ownPrice + " - " + ownDuration + "]"
-		row := "🚦 " + activity.Name + ownFmt + totalFmt
+		icon := "🟢"
+		if criticalSet != nil && criticalSet[activity] {
+			icon = "🔴"
+		}
+		row := icon + " " + activity.Name + ownFmt + totalFmt
 		fmt.Println(prefix + connector + row)
 		childPrefix := newChildPrefix(isLastItem, prefix)
 		prettyPrintComplexMaterials(activity.ComplexMaterials, childPrefix, true)
 		prettyPrintCountableMaterials(activity.CountableMaterials, childPrefix, true)
 		prettyPrintMeasurableMaterials(activity.MeasurableMaterials, childPrefix, true)
-		prettyPrintRecursive(activity.Activities, childPrefix, true)
+		prettyPrintRecursive(activity.Activities, childPrefix, true, criticalSet)
 	}
 }
 
-func PrettyPrint(activities []*Activity) {
+// PrettyPrint prints the activity tree. criticalPath is the result of root.CalculateCriticalPath();
+// activities on the path are shown with 🔴, others with 🟢. Pass nil to show all as 🟢.
+func PrettyPrint(activities []*Activity, criticalPath []*Activity) {
+	var criticalSet map[*Activity]bool
+	if criticalPath != nil {
+		criticalSet = make(map[*Activity]bool)
+		for _, a := range criticalPath {
+			criticalSet[a] = true
+		}
+	}
 	fmt.Println("Activity Tree:")
-	prettyPrintRecursive(activities, "", false)
+	prettyPrintRecursive(activities, "", false, criticalSet)
 }

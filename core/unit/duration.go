@@ -35,3 +35,26 @@ func (d *Duration) SetUnit(unit DurationUnit) *Duration {
 	d.Unit = unit
 	return d
 }
+
+// ToHours returns the duration in hours for comparison and aggregation.
+func (d *Duration) ToHours() float64 {
+	if d == nil {
+		return 0
+	}
+	switch d.Unit {
+	case DurationUnitMinute:
+		return d.Value / 60
+	case DurationUnitHour:
+		return d.Value
+	case DurationUnitDay:
+		return d.Value * 24
+	case DurationUnitWeek:
+		return d.Value * 24 * 7
+	case DurationUnitMonth:
+		return d.Value * 24 * 30
+	case DurationUnitYear:
+		return d.Value * 24 * 365
+	default:
+		return d.Value
+	}
+}
