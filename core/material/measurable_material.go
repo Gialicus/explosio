@@ -17,3 +17,23 @@ func NewMeasurableMaterial(name string, description string, price unit.Price, qu
 func (m *MeasurableMaterial) CalculatePrice() float64 {
 	return m.Price.Value
 }
+
+func (m *MeasurableMaterial) SetName(name string) *MeasurableMaterial {
+	m.Name = name
+	return m
+}
+
+func (m *MeasurableMaterial) SetDescription(description string) *MeasurableMaterial {
+	m.Description = description
+	return m
+}
+
+func (m *MeasurableMaterial) SetPrice(price unit.Price) *MeasurableMaterial {
+	m.Price = price
+	return m
+}
+
+func (m *MeasurableMaterial) SetQuantity(quantity unit.MeasurableQuantity) *MeasurableMaterial {
+	m.Quantity = quantity
+	return m
+}

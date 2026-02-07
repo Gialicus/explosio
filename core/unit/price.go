@@ -7,10 +7,6 @@ type Price struct {
 	Currency string
 }
 
-func DefaultPrice() *Price {
-	return &Price{Value: 0, Currency: "EUR"}
-}
-
 func NewPrice(value float64, currency string) *Price {
 	return &Price{Value: value, Currency: currency}
 }

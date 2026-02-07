@@ -21,7 +21,7 @@ func NewActivity(name string, description string, duration unit.Duration) *Activ
 		Name:        name,
 		Description: description,
 		Duration:    duration,
-		Price:       *unit.DefaultPrice(),
+		Price:       *unit.NewPrice(0, "EUR"),
 	}
 }
 

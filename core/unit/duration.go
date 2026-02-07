@@ -18,14 +18,20 @@ type Duration struct {
 	Unit  DurationUnit
 }
 
-func DefaultDuration() *Duration {
-	return &Duration{Value: 0, Unit: DurationUnitHour}
-}
-
 func NewDuration(value float64, unit DurationUnit) *Duration {
 	return &Duration{Value: value, Unit: unit}
 }
 
 func (d *Duration) String() string {
 	return fmt.Sprintf("%.0f %s", d.Value, d.Unit)
+}
+
+func (d *Duration) SetValue(value float64) *Duration {
+	d.Value = value
+	return d
+}
+
+func (d *Duration) SetUnit(unit DurationUnit) *Duration {
+	d.Unit = unit
+	return d
 }
