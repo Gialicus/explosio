@@ -81,3 +81,23 @@ func (a *Activity) CalculateDuration() float64 {
 	}
 	return duration
 }
+
+/*
+Quantity calculation:
+*/
+func (a *Activity) CalculateQuantity() int {
+	quantity := 0
+	for _, complexMaterial := range a.ComplexMaterials {
+		quantity += complexMaterial.UnitQuantity
+	}
+	for _, countableMaterial := range a.CountableMaterials {
+		quantity += countableMaterial.Quantity
+	}
+	for range a.MeasurableMaterials {
+		quantity += 1
+	}
+	for _, activity := range a.Activities {
+		quantity += activity.CalculateQuantity()
+	}
+	return quantity
+}

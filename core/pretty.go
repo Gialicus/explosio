@@ -67,7 +67,7 @@ func prettyPrintRecursive(activities []*Activity, prefix string, showConnector b
 		duration := fmt.Sprintf("%.0f %s", activity.CalculateDuration(), activity.Duration.Unit)
 		totalFmt := " (" + price + " - " + duration + ")"
 		ownFmt := " [" + ownPrice + " - " + ownDuration + "]"
-		row := activity.Name + ownFmt + totalFmt
+		row := "🚦 " + activity.Name + ownFmt + totalFmt
 		fmt.Println(prefix + connector + row)
 		childPrefix := newChildPrefix(isLastItem, prefix)
 		prettyPrintComplexMaterials(activity.ComplexMaterials, childPrefix, true)
