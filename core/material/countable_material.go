@@ -9,3 +9,11 @@ type CountableMaterial struct {
 	Price       unit.Price
 	Quantity    int
 }
+
+func NewCountableMaterial(name string, description string, price unit.Price, quantity int) *CountableMaterial {
+	return &CountableMaterial{Name: name, Description: description, Price: price, Quantity: quantity}
+}
+
+func (c *CountableMaterial) CalculatePrice() float64 {
+	return c.Price.Value
+}

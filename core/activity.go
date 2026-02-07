@@ -16,12 +16,12 @@ type Activity struct {
 	MeasurableMaterials []*material.MeasurableMaterial
 }
 
-func NewActivity(name string, description string, duration unit.Duration, price unit.Price) *Activity {
+func NewActivity(name string, description string, duration unit.Duration) *Activity {
 	return &Activity{
 		Name:        name,
 		Description: description,
 		Duration:    duration,
-		Price:       price,
+		Price:       *unit.DefaultPrice(),
 	}
 }
 
@@ -39,4 +39,24 @@ func (a *Activity) AddCountableMaterial(countableMaterial *material.CountableMat
 
 func (a *Activity) AddMeasurableMaterial(measurableMaterial *material.MeasurableMaterial) {
 	a.MeasurableMaterials = append(a.MeasurableMaterials, measurableMaterial)
+}
+
+/*
+Price calculation:
+*/
+func (a *Activity) CalculatePrice() float64 {
+	price := a.Price.Value
+	for _, complexMaterial := range a.ComplexMaterials {
+		price += complexMaterial.CalculatePrice()
+	}
+	for _, countableMaterial := range a.CountableMaterials {
+		price += countableMaterial.CalculatePrice()
+	}
+	for _, measurableMaterial := range a.MeasurableMaterials {
+		price += measurableMaterial.CalculatePrice()
+	}
+	for _, activity := range a.Activities {
+		price += activity.CalculatePrice()
+	}
+	return price
 }
