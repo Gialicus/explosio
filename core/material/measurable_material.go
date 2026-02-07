@@ -14,10 +14,6 @@ func NewMeasurableMaterial(name string, description string, price unit.Price, qu
 	return &MeasurableMaterial{Name: name, Description: description, Price: price, Quantity: quantity}
 }
 
-func (m *MeasurableMaterial) CalculatePrice() float64 {
-	return m.Price.Value
-}
-
 func (m *MeasurableMaterial) SetName(name string) *MeasurableMaterial {
 	m.Name = name
 	return m
@@ -36,4 +32,8 @@ func (m *MeasurableMaterial) SetPrice(price unit.Price) *MeasurableMaterial {
 func (m *MeasurableMaterial) SetQuantity(quantity unit.MeasurableQuantity) *MeasurableMaterial {
 	m.Quantity = quantity
 	return m
+}
+
+func (m *MeasurableMaterial) CalculatePrice() float64 {
+	return m.Price.Value
 }

@@ -14,6 +14,26 @@ func NewCountableMaterial(name string, description string, price unit.Price, qua
 	return &CountableMaterial{Name: name, Description: description, Price: price, Quantity: quantity}
 }
 
+func (c *CountableMaterial) SetName(name string) *CountableMaterial {
+	c.Name = name
+	return c
+}
+
+func (c *CountableMaterial) SetDescription(description string) *CountableMaterial {
+	c.Description = description
+	return c
+}
+
+func (c *CountableMaterial) SetPrice(price unit.Price) *CountableMaterial {
+	c.Price = price
+	return c
+}
+
+func (c *CountableMaterial) SetQuantity(quantity int) *CountableMaterial {
+	c.Quantity = quantity
+	return c
+}
+
 func (c *CountableMaterial) CalculatePrice() float64 {
 	return c.Price.Value
 }
