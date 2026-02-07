@@ -1,7 +1,13 @@
 package main
 
-import "fmt"
+import (
+	"explosio/core"
+	"explosio/core/unit"
+	"fmt"
+)
 
 func main() {
-	fmt.Println("Hello, World!")
+	activity := core.NewActivity("Install a pipe", "Install a pipe 1 meter long", unit.Duration{Value: 1, Unit: unit.DurationUnitHour}, unit.Price{Value: 100, Currency: "EUR"})
+	activity.AddActivity(core.NewActivity("Install a pipe", "Install a pipe 1 meter long", unit.Duration{Value: 1, Unit: unit.DurationUnitHour}, unit.Price{Value: 100, Currency: "EUR"}))
+	fmt.Println(activity)
 }

@@ -1,4 +1,4 @@
-package core
+package unit
 
 type MeasurableQuantity struct {
 	Value float64

@@ -1,4 +1,4 @@
-package core
+package unit
 
 type DurationUnit string
 

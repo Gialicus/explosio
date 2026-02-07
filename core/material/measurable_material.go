@@ -1,10 +1,11 @@
 package material
 
-import "explosio/core"
+import "explosio/core/unit"
 
+// MeasurableMaterial is a material that is measurable, for example: a pipe 1 meter long
 type MeasurableMaterial struct {
 	Name        string
 	Description string
-	Price       core.Price
-	Quantity    core.MeasurableQuantity
+	Price       unit.Price
+	Quantity    unit.MeasurableQuantity
 }
