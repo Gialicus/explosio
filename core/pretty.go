@@ -27,9 +27,13 @@ func prettyPrintRecursive(activities []*Activity, prefix string, showConnector b
 	for i, activity := range activities {
 		isLastItem := i == len(activities)-1
 		connector := newConnector(showConnector, "", isLastItem)
+		ownPrice := fmt.Sprintf("%.2f %s", activity.Price.Value, activity.Price.Currency)
 		price := fmt.Sprintf("%.2f %s", activity.CalculatePrice(), activity.Price.Currency)
-		duration := activity.Duration.String()
-		row := activity.Name + " (" + price + " - " + duration + ")"
+		ownDuration := fmt.Sprintf("%.0f %s", activity.Duration.Value, activity.Duration.Unit)
+		duration := fmt.Sprintf("%.0f %s", activity.CalculateDuration(), activity.Duration.Unit)
+		totalFmt := " (" + price + " - " + duration + ")"
+		ownFmt := " [" + ownPrice + " - " + ownDuration + "]"
+		row := activity.Name + ownFmt + totalFmt
 		fmt.Println(prefix + connector + row)
 		childPrefix := newChildPrefix(isLastItem, prefix)
 		prettyPrintRecursive(activity.Activities, childPrefix, true)

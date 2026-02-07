@@ -16,13 +16,23 @@ type Activity struct {
 	MeasurableMaterials []*material.MeasurableMaterial
 }
 
-func NewActivity(name string, description string, duration unit.Duration) *Activity {
+func NewActivity(name string, description string) *Activity {
 	return &Activity{
 		Name:        name,
 		Description: description,
-		Duration:    duration,
+		Duration:    *unit.NewDuration(0, unit.DurationUnitHour),
 		Price:       *unit.NewPrice(0, "EUR"),
 	}
+}
+
+func (a *Activity) SetDuration(duration unit.Duration) *Activity {
+	a.Duration = duration
+	return a
+}
+
+func (a *Activity) SetPrice(price unit.Price) *Activity {
+	a.Price = price
+	return a
 }
 
 func (a *Activity) AddActivity(activity *Activity) {
@@ -59,4 +69,15 @@ func (a *Activity) CalculatePrice() float64 {
 		price += activity.CalculatePrice()
 	}
 	return price
+}
+
+/*
+Duration calculation:
+*/
+func (a *Activity) CalculateDuration() float64 {
+	duration := a.Duration.Value
+	for _, activity := range a.Activities {
+		duration += activity.CalculateDuration()
+	}
+	return duration
 }
