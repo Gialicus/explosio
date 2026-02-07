@@ -10,3 +10,6 @@ vendor/
 .vscode/
 *.swp
 .DS_Store
+
+# Coverage
+coverage.out

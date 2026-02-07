@@ -17,36 +17,6 @@ func NewComplexMaterial(name string, description string, price unit.Price, unitQ
 	return &ComplexMaterial{Name: name, Description: description, Price: price, UnitQuantity: unitQuantity, MeasurableMaterial: measurableMaterial}
 }
 
-// SetName sets the name and returns the receiver for chaining.
-func (c *ComplexMaterial) SetName(name string) *ComplexMaterial {
-	c.Name = name
-	return c
-}
-
-// SetDescription sets the description and returns the receiver for chaining.
-func (c *ComplexMaterial) SetDescription(description string) *ComplexMaterial {
-	c.Description = description
-	return c
-}
-
-// SetPrice sets the price and returns the receiver for chaining.
-func (c *ComplexMaterial) SetPrice(price unit.Price) *ComplexMaterial {
-	c.Price = price
-	return c
-}
-
-// SetUnitQuantity sets the unit quantity and returns the receiver for chaining.
-func (c *ComplexMaterial) SetUnitQuantity(unitQuantity int) *ComplexMaterial {
-	c.UnitQuantity = unitQuantity
-	return c
-}
-
-// SetMeasurableMaterial sets the measurable material and returns the receiver for chaining.
-func (c *ComplexMaterial) SetMeasurableMaterial(measurableMaterial *MeasurableMaterial) *ComplexMaterial {
-	c.MeasurableMaterial = measurableMaterial
-	return c
-}
-
 // CalculatePrice returns the complex price plus the measurable material price.
 func (c *ComplexMaterial) CalculatePrice() float64 {
 	price := c.Price.Value
