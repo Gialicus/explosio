@@ -13,16 +13,16 @@ func activityWithDefaults(name, desc string) *Activity {
 func TestActivity_CalculatePrice(t *testing.T) {
 	t.Run("own price only", func(t *testing.T) {
 		a := activityWithDefaults("A", "")
-		a.SetPrice(*unit.NewPrice(100, "EUR"))
+		a.Price = *unit.NewPrice(100, "EUR")
 		if got := a.CalculatePrice(); got != 100 {
 			t.Errorf("CalculatePrice() = %v, want 100", got)
 		}
 	})
 	t.Run("with one child", func(t *testing.T) {
 		root := activityWithDefaults("Root", "")
-		root.SetPrice(*unit.NewPrice(10, "EUR"))
+		root.Price = *unit.NewPrice(10, "EUR")
 		child := activityWithDefaults("Child", "")
-		child.SetPrice(*unit.NewPrice(20, "EUR"))
+		child.Price = *unit.NewPrice(20, "EUR")
 		root.AddActivity(child)
 		if got := root.CalculatePrice(); got != 30 {
 			t.Errorf("CalculatePrice() = %v, want 30", got)
@@ -30,7 +30,7 @@ func TestActivity_CalculatePrice(t *testing.T) {
 	})
 	t.Run("with materials", func(t *testing.T) {
 		a := activityWithDefaults("A", "")
-		a.SetPrice(*unit.NewPrice(50, "EUR"))
+		a.Price = *unit.NewPrice(50, "EUR")
 		a.AddCountableMaterial(material.NewCountableMaterial("S", "", *unit.NewPrice(5, "EUR"), 10))
 		a.AddMeasurableMaterial(material.NewMeasurableMaterial("M", "", *unit.NewPrice(3, "EUR"), *unit.NewMeasurableQuantity(1, unit.UnitMeter)))
 		// 50 + 5 + 3 = 58
@@ -43,16 +43,16 @@ func TestActivity_CalculatePrice(t *testing.T) {
 func TestActivity_CalculateDuration(t *testing.T) {
 	t.Run("no children", func(t *testing.T) {
 		a := activityWithDefaults("A", "")
-		a.SetDuration(*unit.NewDuration(5, unit.DurationUnitDay))
+		a.Duration = *unit.NewDuration(5, unit.DurationUnitDay)
 		if got := a.CalculateDuration(); got != 5 {
 			t.Errorf("CalculateDuration() = %v, want 5", got)
 		}
 	})
 	t.Run("with children", func(t *testing.T) {
 		root := activityWithDefaults("Root", "")
-		root.SetDuration(*unit.NewDuration(1, unit.DurationUnitDay))
+		root.Duration = *unit.NewDuration(1, unit.DurationUnitDay)
 		child := activityWithDefaults("Child", "")
-		child.SetDuration(*unit.NewDuration(2, unit.DurationUnitDay))
+		child.Duration = *unit.NewDuration(2, unit.DurationUnitDay)
 		root.AddActivity(child)
 		if got := root.CalculateDuration(); got != 3 {
 			t.Errorf("CalculateDuration() = %v, want 3", got)
@@ -89,15 +89,15 @@ func TestActivity_CalculateQuantity(t *testing.T) {
 
 func TestActivity_CalculateCriticalPath(t *testing.T) {
 	tests := []struct {
-		name     string
-		build    func() *Activity
+		name      string
+		build     func() *Activity
 		wantNames []string
 	}{
 		{
 			name: "leaf",
 			build: func() *Activity {
 				a := activityWithDefaults("Leaf", "")
-				a.SetDuration(*unit.NewDuration(1, unit.DurationUnitDay))
+				a.Duration = *unit.NewDuration(1, unit.DurationUnitDay)
 				return a
 			},
 			wantNames: []string{"Leaf"},
@@ -106,9 +106,9 @@ func TestActivity_CalculateCriticalPath(t *testing.T) {
 			name: "root and one child",
 			build: func() *Activity {
 				root := activityWithDefaults("Root", "")
-				root.SetDuration(*unit.NewDuration(1, unit.DurationUnitDay))
+				root.Duration = *unit.NewDuration(1, unit.DurationUnitDay)
 				child := activityWithDefaults("Child", "")
-				child.SetDuration(*unit.NewDuration(2, unit.DurationUnitDay))
+				child.Duration = *unit.NewDuration(2, unit.DurationUnitDay)
 				root.AddActivity(child)
 				return root
 			},
@@ -118,11 +118,11 @@ func TestActivity_CalculateCriticalPath(t *testing.T) {
 			name: "two children longer path wins",
 			build: func() *Activity {
 				root := activityWithDefaults("Root", "")
-				root.SetDuration(*unit.NewDuration(0, unit.DurationUnitDay))
+				root.Duration = *unit.NewDuration(0, unit.DurationUnitDay)
 				short := activityWithDefaults("Short", "")
-				short.SetDuration(*unit.NewDuration(1, unit.DurationUnitDay))
+				short.Duration = *unit.NewDuration(1, unit.DurationUnitDay)
 				long := activityWithDefaults("Long", "")
-				long.SetDuration(*unit.NewDuration(3, unit.DurationUnitDay))
+				long.Duration = *unit.NewDuration(3, unit.DurationUnitDay)
 				root.AddActivity(short)
 				root.AddActivity(long)
 				return root
@@ -133,13 +133,13 @@ func TestActivity_CalculateCriticalPath(t *testing.T) {
 			name: "nested longer branch",
 			build: func() *Activity {
 				root := activityWithDefaults("Root", "")
-				root.SetDuration(*unit.NewDuration(0, unit.DurationUnitDay))
+				root.Duration = *unit.NewDuration(0, unit.DurationUnitDay)
 				a := activityWithDefaults("A", "")
-				a.SetDuration(*unit.NewDuration(1, unit.DurationUnitDay))
+				a.Duration = *unit.NewDuration(1, unit.DurationUnitDay)
 				b := activityWithDefaults("B", "")
-				b.SetDuration(*unit.NewDuration(1, unit.DurationUnitDay))
+				b.Duration = *unit.NewDuration(1, unit.DurationUnitDay)
 				deep := activityWithDefaults("Deep", "")
-				deep.SetDuration(*unit.NewDuration(2, unit.DurationUnitDay))
+				deep.Duration = *unit.NewDuration(2, unit.DurationUnitDay)
 				b.AddActivity(deep)
 				root.AddActivity(a)
 				root.AddActivity(b)

@@ -28,18 +28,6 @@ func NewActivity(name string, description string, duration unit.Duration, price 
 	}
 }
 
-// SetDuration sets the activity duration and returns the activity for chaining.
-func (a *Activity) SetDuration(duration unit.Duration) *Activity {
-	a.Duration = duration
-	return a
-}
-
-// SetPrice sets the activity price and returns the activity for chaining.
-func (a *Activity) SetPrice(price unit.Price) *Activity {
-	a.Price = price
-	return a
-}
-
 // AddActivity adds a sub-activity.
 func (a *Activity) AddActivity(activity *Activity) {
 	a.Activities = append(a.Activities, activity)
