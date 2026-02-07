@@ -1,0 +1,12 @@
+# Binary
+explosio
+*.exe
+
+# Vendor
+vendor/
+
+# IDE / OS
+.idea/
+.vscode/
+*.swp
+.DS_Store
