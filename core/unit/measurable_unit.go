@@ -1,5 +1,6 @@
 package unit
 
+// MeasurableUnit is the unit of measure (length, area, volume, weight: mm, m, m², kg, ...).
 type MeasurableUnit string
 
 const (

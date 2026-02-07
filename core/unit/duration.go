@@ -1,7 +1,9 @@
+// Package unit defines types for durations, prices, and measurable quantities.
 package unit
 
 import "fmt"
 
+// DurationUnit is the unit of duration (minute, hour, day, ...).
 type DurationUnit string
 
 const (
@@ -13,24 +15,29 @@ const (
 	DurationUnitYear   DurationUnit = "year"
 )
 
+// Duration represents a time interval (value plus unit).
 type Duration struct {
 	Value float64
 	Unit  DurationUnit
 }
 
+// NewDuration creates a duration with value and unit.
 func NewDuration(value float64, unit DurationUnit) *Duration {
 	return &Duration{Value: value, Unit: unit}
 }
 
+// String formats the duration for output (e.g. "2 hour").
 func (d *Duration) String() string {
 	return fmt.Sprintf("%.0f %s", d.Value, d.Unit)
 }
 
+// SetValue sets the value and returns the pointer for chaining.
 func (d *Duration) SetValue(value float64) *Duration {
 	d.Value = value
 	return d
 }
 
+// SetUnit sets the unit and returns the pointer for chaining.
 func (d *Duration) SetUnit(unit DurationUnit) *Duration {
 	d.Unit = unit
 	return d

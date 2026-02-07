@@ -1,3 +1,4 @@
+// Package main is the entry point of the explosio application.
 package main
 
 import (
@@ -7,6 +8,7 @@ import (
 	"fmt"
 )
 
+// main builds a sample activity tree (home renovation), prints it with PrettyPrint, and shows totals and critical path.
 func main() {
 	// Level 1 (root)
 	homeRenovation := core.NewActivity("Home Renovation", "Complete home renovation project")
@@ -35,6 +37,40 @@ func main() {
 	installTiles.SetDuration(unit.Duration{Value: 4, Unit: unit.DurationUnitDay})
 	installTiles.SetPrice(unit.Price{Value: 3500, Currency: "EUR"})
 
+	// Level 4
+	cutAndFitPipes := core.NewActivity("Cut and fit pipes", "Cut and fit pipes to length")
+	cutAndFitPipes.SetDuration(unit.Duration{Value: 1.5, Unit: unit.DurationUnitDay})
+	cutAndFitPipes.SetPrice(unit.Price{Value: 300, Currency: "EUR"})
+
+	weldJoints := core.NewActivity("Weld joints", "Weld pipe joints")
+	weldJoints.SetDuration(unit.Duration{Value: 1, Unit: unit.DurationUnitDay})
+	weldJoints.SetPrice(unit.Price{Value: 250, Currency: "EUR"})
+
+	runCables := core.NewActivity("Run cables", "Run electrical cables through walls")
+	runCables.SetDuration(unit.Duration{Value: 1, Unit: unit.DurationUnitDay})
+	runCables.SetPrice(unit.Price{Value: 200, Currency: "EUR"})
+
+	mountSwitches := core.NewActivity("Mount switches", "Mount light switches and outlets")
+	mountSwitches.SetDuration(unit.Duration{Value: 0.5, Unit: unit.DurationUnitDay})
+	mountSwitches.SetPrice(unit.Price{Value: 150, Currency: "EUR"})
+
+	prepareSurface := core.NewActivity("Prepare surface", "Prepare floor surface for tiling")
+	prepareSurface.SetDuration(unit.Duration{Value: 1, Unit: unit.DurationUnitDay})
+	prepareSurface.SetPrice(unit.Price{Value: 180, Currency: "EUR"})
+
+	applyAdhesiveAndLayTiles := core.NewActivity("Apply adhesive and lay tiles", "Apply adhesive and lay floor tiles")
+	applyAdhesiveAndLayTiles.SetDuration(unit.Duration{Value: 2, Unit: unit.DurationUnitDay})
+	applyAdhesiveAndLayTiles.SetPrice(unit.Price{Value: 400, Currency: "EUR"})
+
+	// Level 5
+	measureAndMark := core.NewActivity("Measure and mark", "Measure and mark pipe cut points")
+	measureAndMark.SetDuration(unit.Duration{Value: 1, Unit: unit.DurationUnitDay})
+	measureAndMark.SetPrice(unit.Price{Value: 100, Currency: "EUR"})
+
+	applyGrout := core.NewActivity("Apply grout", "Apply grout between tiles")
+	applyGrout.SetDuration(unit.Duration{Value: 0.5, Unit: unit.DurationUnitDay})
+	applyGrout.SetPrice(unit.Price{Value: 80, Currency: "EUR"})
+
 	// Materials
 	// installPipes: pipes (complex), cement (measurable), screws (countable)
 	pipeUnit := material.NewMeasurableMaterial("Pipe 2m", "Copper pipe 2m", unit.Price{Value: 50, Currency: "EUR"}, unit.MeasurableQuantity{Value: 2, Unit: unit.UnitMeter})
@@ -52,6 +88,17 @@ func main() {
 	screwsTiles := material.NewCountableMaterial("Tile anchors", "Wall anchors for tiles", unit.Price{Value: 0.2, Currency: "EUR"}, 50)
 
 	// Build tree
+	installPipes.AddActivity(cutAndFitPipes)
+	installPipes.AddActivity(weldJoints)
+	cutAndFitPipes.AddActivity(measureAndMark)
+
+	installElectrical.AddActivity(runCables)
+	installElectrical.AddActivity(mountSwitches)
+
+	installTiles.AddActivity(prepareSurface)
+	installTiles.AddActivity(applyAdhesiveAndLayTiles)
+	applyAdhesiveAndLayTiles.AddActivity(applyGrout)
+
 	kitchen.AddActivity(installPipes)
 	kitchen.AddActivity(installElectrical)
 	bathroom.AddActivity(installTiles)
