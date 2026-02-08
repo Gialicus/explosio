@@ -2,6 +2,8 @@
 package core
 
 import (
+	"explosio/core/asset"
+	"explosio/core/human"
 	"explosio/core/material"
 	"explosio/core/unit"
 )
@@ -16,6 +18,8 @@ type Activity struct {
 	ComplexMaterials    []*material.ComplexMaterial
 	CountableMaterials  []*material.CountableMaterial
 	MeasurableMaterials []*material.MeasurableMaterial
+	HumanResources      []*human.HumanResource
+	Assets              []*asset.Asset
 }
 
 // NewActivity creates an activity with name and description, zero duration and zero EUR price.
@@ -46,4 +50,14 @@ func (a *Activity) AddCountableMaterial(countableMaterial *material.CountableMat
 // AddMeasurableMaterial adds a measurable material.
 func (a *Activity) AddMeasurableMaterial(measurableMaterial *material.MeasurableMaterial) {
 	a.MeasurableMaterials = append(a.MeasurableMaterials, measurableMaterial)
+}
+
+// AddHumanResource adds a human resource.
+func (a *Activity) AddHumanResource(humanResource *human.HumanResource) {
+	a.HumanResources = append(a.HumanResources, humanResource)
+}
+
+// AddAsset adds an asset.
+func (a *Activity) AddAsset(asset *asset.Asset) {
+	a.Assets = append(a.Assets, asset)
 }

@@ -3,6 +3,8 @@ package main
 
 import (
 	"explosio/core"
+	"explosio/core/asset"
+	"explosio/core/human"
 	"explosio/core/material"
 	"explosio/core/unit"
 	"fmt"
@@ -174,6 +176,52 @@ func main() {
 		WithQuantity(50).
 		Build()
 
+	// Human resources
+	plumber := human.NewHumanResourceBuilder().
+		WithName("Plumber").
+		WithDescription("Licensed plumber for pipe installation").
+		WithDuration(*unit.NewDuration(3, unit.DurationUnitDay)).
+		WithPrice(*unit.NewPrice(800, "EUR")).
+		Build()
+	electrician := human.NewHumanResourceBuilder().
+		WithName("Electrician").
+		WithDescription("Certified electrician for wiring").
+		WithDuration(*unit.NewDuration(2, unit.DurationUnitDay)).
+		WithPrice(*unit.NewPrice(600, "EUR")).
+		Build()
+	tiler := human.NewHumanResourceBuilder().
+		WithName("Tiler").
+		WithDescription("Tile layer for bathroom").
+		WithDuration(*unit.NewDuration(4, unit.DurationUnitDay)).
+		WithPrice(*unit.NewPrice(900, "EUR")).
+		Build()
+
+	// Assets (equipment / tools)
+	pipeCutter := asset.NewAssetBuilder().
+		WithName("Pipe cutter").
+		WithDescription("Professional pipe cutting tool").
+		WithPrice(*unit.NewPrice(120, "EUR")).
+		WithDuration(*unit.NewDuration(0, unit.DurationUnitDay)).
+		Build()
+	weldingKit := asset.NewAssetBuilder().
+		WithName("Welding kit").
+		WithDescription("Portable welding equipment").
+		WithPrice(*unit.NewPrice(350, "EUR")).
+		WithDuration(*unit.NewDuration(0, unit.DurationUnitDay)).
+		Build()
+	drill := asset.NewAssetBuilder().
+		WithName("Drill").
+		WithDescription("Cordless drill for mounting").
+		WithPrice(*unit.NewPrice(80, "EUR")).
+		WithDuration(*unit.NewDuration(0, unit.DurationUnitDay)).
+		Build()
+	tileCutter := asset.NewAssetBuilder().
+		WithName("Tile cutter").
+		WithDescription("Manual tile cutter").
+		WithPrice(*unit.NewPrice(60, "EUR")).
+		WithDuration(*unit.NewDuration(0, unit.DurationUnitDay)).
+		Build()
+
 	// Build tree
 	installPipes.AddActivity(cutAndFitPipes)
 	installPipes.AddActivity(weldJoints)
@@ -201,6 +249,17 @@ func main() {
 	installTiles.AddMeasurableMaterial(tiles)
 	installTiles.AddMeasurableMaterial(grout)
 	installTiles.AddCountableMaterial(screwsTiles)
+
+	// Add human resources to activities
+	installPipes.AddHumanResource(plumber)
+	installElectrical.AddHumanResource(electrician)
+	installTiles.AddHumanResource(tiler)
+
+	// Add assets to activities
+	installPipes.AddAsset(pipeCutter)
+	installPipes.AddAsset(weldingKit)
+	installElectrical.AddAsset(drill)
+	installTiles.AddAsset(tileCutter)
 
 	core.PrettyPrint([]*core.Activity{homeRenovation}, homeRenovation.CalculateCriticalPath())
 	fmt.Printf("\nTotal price: %.2f EUR\n", homeRenovation.CalculatePrice())

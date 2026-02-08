@@ -2,6 +2,8 @@
 package core
 
 import (
+	"explosio/core/asset"
+	"explosio/core/human"
 	"explosio/core/material"
 	"fmt"
 )
@@ -72,6 +74,30 @@ func prettyPrintMeasurableMaterials(materials []*material.MeasurableMaterial, pr
 	}
 }
 
+// prettyPrintHumanResources prints the list of human resources with prefix and tree connectors.
+func prettyPrintHumanResources(humanResources []*human.HumanResource, prefix string, showConnector bool) {
+	for i, m := range humanResources {
+		isLastItem := i == len(humanResources)-1
+		connector := newConnector(showConnector, "", isLastItem)
+		price := fmt.Sprintf("%.2f %s", m.CalculatePrice(), m.Price.Currency)
+		duration := fmt.Sprintf("%.0f %s", m.Duration.Value, m.Duration.Unit)
+		row := "👤 " + m.Name + " [" + blue1 + price + reset + " - " + blue2 + duration + reset + "]"
+		fmt.Println(prefix + connector + row)
+	}
+}
+
+// prettyPrintAssets prints the list of assets with prefix and tree connectors.
+func prettyPrintAssets(assets []*asset.Asset, prefix string, showConnector bool) {
+	for i, m := range assets {
+		isLastItem := i == len(assets)-1
+		connector := newConnector(showConnector, "", isLastItem)
+		price := fmt.Sprintf("%.2f %s", m.CalculatePrice(), m.Price.Currency)
+		duration := fmt.Sprintf("%.0f %s", m.Duration.Value, m.Duration.Unit)
+		row := "💰 " + m.Name + " [" + blue1 + price + reset + " - " + blue2 + duration + reset + "]"
+		fmt.Println(prefix + connector + row)
+	}
+}
+
 // prettyPrintRecursive walks the tree in depth and prints activities (with critical path icon) and materials.
 func prettyPrintRecursive(activities []*Activity, prefix string, showConnector bool, criticalSet map[*Activity]bool) {
 	for i, activity := range activities {
@@ -93,6 +119,8 @@ func prettyPrintRecursive(activities []*Activity, prefix string, showConnector b
 		prettyPrintComplexMaterials(activity.ComplexMaterials, childPrefix, true)
 		prettyPrintCountableMaterials(activity.CountableMaterials, childPrefix, true)
 		prettyPrintMeasurableMaterials(activity.MeasurableMaterials, childPrefix, true)
+		prettyPrintHumanResources(activity.HumanResources, childPrefix, true)
+		prettyPrintAssets(activity.Assets, childPrefix, true)
 		prettyPrintRecursive(activity.Activities, childPrefix, true, criticalSet)
 	}
 }
