@@ -17,6 +17,12 @@ func (a *Activity) CalculatePrice() float64 {
 	for _, activity := range a.Activities {
 		price += activity.CalculatePrice()
 	}
+	for _, humanResource := range a.HumanResources {
+		price += humanResource.CalculatePrice()
+	}
+	for _, asset := range a.Assets {
+		price += asset.CalculatePrice()
+	}
 	return price
 }
 
@@ -27,24 +33,6 @@ func (a *Activity) CalculateDuration() float64 {
 		duration += activity.CalculateDuration()
 	}
 	return duration
-}
-
-// CalculateQuantity returns the total number of units/materials (complex, countable, measurable) in the tree.
-func (a *Activity) CalculateQuantity() int {
-	quantity := 0
-	for _, complexMaterial := range a.ComplexMaterials {
-		quantity += complexMaterial.UnitQuantity
-	}
-	for _, countableMaterial := range a.CountableMaterials {
-		quantity += countableMaterial.Quantity
-	}
-	for range a.MeasurableMaterials {
-		quantity += 1
-	}
-	for _, activity := range a.Activities {
-		quantity += activity.CalculateQuantity()
-	}
-	return quantity
 }
 
 // CalculateCriticalPath returns the critical path (classic CPM interpretation): the longest path from root to leaf when sub-activities are in parallel. Any delay on this path delays the whole project.

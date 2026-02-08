@@ -264,5 +264,4 @@ func main() {
 	core.PrettyPrint([]*core.Activity{homeRenovation}, homeRenovation.CalculateCriticalPath())
 	fmt.Printf("\nTotal price: %.2f EUR\n", homeRenovation.CalculatePrice())
 	fmt.Printf("Total duration: %.0f days\n", homeRenovation.CalculateDuration())
-	fmt.Printf("Total quantity: %d\n", homeRenovation.CalculateQuantity())
 }

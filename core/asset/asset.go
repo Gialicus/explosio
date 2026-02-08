@@ -24,3 +24,13 @@ func (a *Asset) CalculatePrice() float64 {
 func (a *Asset) CalculateDuration() float64 {
 	return a.Duration.Value
 }
+
+// CalculateHourlyRate returns the hourly rate of the asset.
+func (a *Asset) CalculateHourlyRate() float64 {
+	return a.Price.Value / a.Duration.ToHours()
+}
+
+// CalculateDailyRate returns the daily rate of the asset.
+func (a *Asset) CalculateDailyRate() float64 {
+	return a.Price.Value / a.Duration.ToHours() * unit.WORKING_HOURS_PER_DAY
+}

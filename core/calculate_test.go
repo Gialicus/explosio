@@ -1,6 +1,8 @@
 package core
 
 import (
+	"explosio/core/asset"
+	"explosio/core/human"
 	"explosio/core/material"
 	"explosio/core/unit"
 	"testing"
@@ -38,6 +40,34 @@ func TestActivity_CalculatePrice(t *testing.T) {
 			t.Errorf("CalculatePrice() = %v, want 58", got)
 		}
 	})
+	t.Run("with human resources", func(t *testing.T) {
+		a := activityWithDefaults("A", "")
+		a.Price = *unit.NewPrice(10, "EUR")
+		a.AddHumanResource(human.NewHumanResource("Dev", "", *unit.NewDuration(8, unit.DurationUnitHour), *unit.NewPrice(25, "EUR")))
+		// 10 + 25 = 35
+		if got := a.CalculatePrice(); got != 35 {
+			t.Errorf("CalculatePrice() = %v, want 35", got)
+		}
+	})
+	t.Run("with assets", func(t *testing.T) {
+		a := activityWithDefaults("A", "")
+		a.Price = *unit.NewPrice(10, "EUR")
+		a.AddAsset(asset.NewAsset("Mac", "", *unit.NewPrice(15, "EUR"), *unit.NewDuration(1, unit.DurationUnitDay)))
+		// 10 + 15 = 25
+		if got := a.CalculatePrice(); got != 25 {
+			t.Errorf("CalculatePrice() = %v, want 25", got)
+		}
+	})
+	t.Run("with human resources and assets", func(t *testing.T) {
+		a := activityWithDefaults("A", "")
+		a.Price = *unit.NewPrice(5, "EUR")
+		a.AddHumanResource(human.NewHumanResource("Dev", "", *unit.NewDuration(8, unit.DurationUnitHour), *unit.NewPrice(20, "EUR")))
+		a.AddAsset(asset.NewAsset("Tool", "", *unit.NewPrice(10, "EUR"), *unit.NewDuration(1, unit.DurationUnitDay)))
+		// 5 + 20 + 10 = 35
+		if got := a.CalculatePrice(); got != 35 {
+			t.Errorf("CalculatePrice() = %v, want 35", got)
+		}
+	})
 }
 
 func TestActivity_CalculateDuration(t *testing.T) {
@@ -56,33 +86,6 @@ func TestActivity_CalculateDuration(t *testing.T) {
 		root.AddActivity(child)
 		if got := root.CalculateDuration(); got != 3 {
 			t.Errorf("CalculateDuration() = %v, want 3", got)
-		}
-	})
-}
-
-func TestActivity_CalculateQuantity(t *testing.T) {
-	t.Run("no materials", func(t *testing.T) {
-		a := activityWithDefaults("A", "")
-		if got := a.CalculateQuantity(); got != 0 {
-			t.Errorf("CalculateQuantity() = %v, want 0", got)
-		}
-	})
-	t.Run("with countable and measurable", func(t *testing.T) {
-		a := activityWithDefaults("A", "")
-		a.AddCountableMaterial(material.NewCountableMaterial("C", "", *unit.NewPrice(1, "EUR"), 7))
-		a.AddMeasurableMaterial(material.NewMeasurableMaterial("M", "", *unit.NewPrice(1, "EUR"), *unit.NewMeasurableQuantity(1, unit.UnitKilogram)))
-		// 7 (countable) + 1 (one measurable) = 8
-		if got := a.CalculateQuantity(); got != 8 {
-			t.Errorf("CalculateQuantity() = %v, want 8", got)
-		}
-	})
-	t.Run("with complex material", func(t *testing.T) {
-		a := activityWithDefaults("A", "")
-		meas := material.NewMeasurableMaterial("U", "", *unit.NewPrice(1, "EUR"), *unit.NewMeasurableQuantity(1, unit.UnitMeter))
-		a.AddComplexMaterial(material.NewComplexMaterial("C", "", *unit.NewPrice(0, "EUR"), 4, meas))
-		// complex adds UnitQuantity 4
-		if got := a.CalculateQuantity(); got != 4 {
-			t.Errorf("CalculateQuantity() = %v, want 4", got)
 		}
 	})
 }

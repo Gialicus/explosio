@@ -13,12 +13,18 @@ func NewHumanResource(name string, description string, duration unit.Duration, p
 	return &HumanResource{Name: name, Description: description, Duration: duration, Price: price}
 }
 
-// CalculatePrice returns the total price (human resource plus all materials and sub-activities).
 func (h *HumanResource) CalculatePrice() float64 {
 	return h.Price.Value
 }
 
-// CalculateDuration returns the total duration (human resource plus sub-activities) in the root's value/unit.
 func (h *HumanResource) CalculateDuration() float64 {
 	return h.Duration.Value
+}
+
+func (h *HumanResource) CalculateHourlyRate() float64 {
+	return h.Price.Value / h.Duration.ToHours()
+}
+
+func (h *HumanResource) CalculateDailyRate() float64 {
+	return h.Price.Value / h.Duration.ToHours() * unit.WORKING_HOURS_PER_DAY
 }

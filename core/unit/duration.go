@@ -15,6 +15,10 @@ const (
 	DurationUnitYear   DurationUnit = "year"
 )
 
+const (
+	WORKING_HOURS_PER_DAY float64 = 8.0
+)
+
 // Duration represents a time interval (value plus unit).
 type Duration struct {
 	Value float64
