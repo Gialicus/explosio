@@ -6,6 +6,15 @@ import (
 	"fmt"
 )
 
+// ANSI color codes for terminal output.
+const (
+	reset = "\033[0m"
+	blue1 = "\033[34m" // standard blue for [] first value
+	blue2 = "\033[94m" // bright blue for [] second value
+	red1  = "\033[31m" // standard red for () first value
+	red2  = "\033[91m" // bright red for () second value
+)
+
 // newConnector returns the "├── " or "└── " prefix for the last element.
 func newConnector(showConnector bool, connector string, isLastItem bool) string {
 	if showConnector {
@@ -34,7 +43,7 @@ func prettyPrintComplexMaterials(materials []*material.ComplexMaterial, prefix s
 		connector := newConnector(showConnector, "", isLastItem)
 		price := fmt.Sprintf("%.2f %s", m.CalculatePrice(), m.Price.Currency)
 		quantity := fmt.Sprintf("%.0f%s", m.MeasurableMaterial.Quantity.Value, m.MeasurableMaterial.Quantity.Unit)
-		row := "📦 " + m.Name + " (" + price + " - " + quantity + ")" + " <" + m.MeasurableMaterial.Name + ">"
+		row := "📦 " + m.Name + " [" + blue1 + price + reset + " - " + blue2 + quantity + reset + "]" + " <" + m.MeasurableMaterial.Name + ">"
 		fmt.Println(prefix + connector + row)
 	}
 }
@@ -46,7 +55,7 @@ func prettyPrintCountableMaterials(materials []*material.CountableMaterial, pref
 		connector := newConnector(showConnector, "", isLastItem)
 		price := fmt.Sprintf("%.2f %s", m.CalculatePrice(), m.Price.Currency)
 		quantity := fmt.Sprintf("%d", m.Quantity)
-		row := "🔢 " + m.Name + " (" + price + " - " + quantity + ")"
+		row := "🔢 " + m.Name + " [" + blue1 + price + reset + " - " + blue2 + quantity + reset + "]"
 		fmt.Println(prefix + connector + row)
 	}
 }
@@ -58,7 +67,7 @@ func prettyPrintMeasurableMaterials(materials []*material.MeasurableMaterial, pr
 		connector := newConnector(showConnector, "", isLastItem)
 		price := fmt.Sprintf("%.2f %s", m.CalculatePrice(), m.Price.Currency)
 		quantity := fmt.Sprintf("%.0f%s", m.Quantity.Value, m.Quantity.Unit)
-		row := "📏 " + m.Name + " (" + price + " - " + quantity + ")"
+		row := "📏 " + m.Name + " [" + blue1 + price + reset + " - " + blue2 + quantity + reset + "]"
 		fmt.Println(prefix + connector + row)
 	}
 }
@@ -72,8 +81,8 @@ func prettyPrintRecursive(activities []*Activity, prefix string, showConnector b
 		price := fmt.Sprintf("%.2f %s", activity.CalculatePrice(), activity.Price.Currency)
 		ownDuration := fmt.Sprintf("%.0f %s", activity.Duration.Value, activity.Duration.Unit)
 		duration := fmt.Sprintf("%.0f %s", activity.CalculateDuration(), activity.Duration.Unit)
-		totalFmt := " (" + price + " - " + duration + ")"
-		ownFmt := " [" + ownPrice + " - " + ownDuration + "]"
+		totalFmt := " (" + red1 + price + reset + " - " + red2 + duration + reset + ")"
+		ownFmt := " [" + blue1 + ownPrice + reset + " - " + blue2 + ownDuration + reset + "]"
 		icon := "🟢"
 		if criticalSet != nil && criticalSet[activity] {
 			icon = "🔴"
@@ -105,8 +114,8 @@ func PrettyPrint(activities []*Activity, criticalPath []*Activity) {
 	fmt.Println("📦: Complex material")
 	fmt.Println("🔢: Countable material")
 	fmt.Println("📏: Measurable material")
-	fmt.Println("[]: Own price and duration")
-	fmt.Println("(): Total price and duration")
+	fmt.Println("[]: Own price and duration (blue variants)")
+	fmt.Println("(): Total price and duration (red variants)")
 	fmt.Println("<>: Measurable material in complex material")
 	fmt.Println("--------------------------------")
 	fmt.Println("   Activity and Material Tree:")
