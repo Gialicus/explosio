@@ -39,13 +39,19 @@ func newChildPrefix(isLastItem bool, childPrefix string) string {
 }
 
 // prettyPrintComplexMaterials prints the list of complex materials with prefix and tree connectors.
+// If a complex material has no MeasurableMaterial, only name and price are shown.
 func prettyPrintComplexMaterials(materials []*material.ComplexMaterial, prefix string, showConnector bool) {
 	for i, m := range materials {
 		isLastItem := i == len(materials)-1
 		connector := newConnector(showConnector, "", isLastItem)
 		price := fmt.Sprintf("%.2f %s", m.CalculatePrice(), m.Price.Currency)
-		quantity := fmt.Sprintf("%.0f%s", m.MeasurableMaterial.Quantity.Value, m.MeasurableMaterial.Quantity.Unit)
-		row := "📦 " + m.Name + " [" + blue1 + price + reset + " - " + blue2 + quantity + reset + "]" + " <" + m.MeasurableMaterial.Name + ">"
+		row := "📦 " + m.Name + " [" + blue1 + price + reset
+		if m.MeasurableMaterial != nil {
+			quantity := fmt.Sprintf("%.0f%s", m.MeasurableMaterial.Quantity.Value, m.MeasurableMaterial.Quantity.Unit)
+			row += " - " + blue2 + quantity + reset + "] <" + m.MeasurableMaterial.Name + ">"
+		} else {
+			row += "] (no measurable material)"
+		}
 		fmt.Println(prefix + connector + row)
 	}
 }

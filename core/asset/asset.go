@@ -10,7 +10,7 @@ type Asset struct {
 	Duration    unit.Duration
 }
 
-// NewAsset creates an asset with name and description, zero price and quantity.
+// NewAsset creates an asset with name and description, zero price and duration.
 func NewAsset(name string, description string, price unit.Price, duration unit.Duration) *Asset {
 	return &Asset{Name: name, Description: description, Price: price, Duration: duration}
 }

@@ -264,4 +264,10 @@ func main() {
 	core.PrettyPrint([]*core.Activity{homeRenovation}, homeRenovation.CalculateCriticalPath())
 	fmt.Printf("\nTotal price: %.2f EUR\n", homeRenovation.CalculatePrice())
 	fmt.Printf("Total duration: %.0f days\n", homeRenovation.CalculateDuration())
+	meas := homeRenovation.GetMeasurableMaterials()
+	countable := homeRenovation.GetCountableMaterials()
+	complexMat := homeRenovation.GetComplexMaterials()
+	hr := homeRenovation.GetHumanResources()
+	assets := homeRenovation.GetAssets()
+	fmt.Printf("Materials: %d measurable, %d countable, %d complex | Human resources: %d | Assets: %d\n", len(meas), len(countable), len(complexMat), len(hr), len(assets))
 }

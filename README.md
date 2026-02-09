@@ -39,4 +39,4 @@ Or, after building:
 
 ## Output
 
-The program prints the activity tree with price and duration (own and total) for each node; activities on the critical path are highlighted. At the end it shows total price, total duration, total quantity, and the critical path.
+The program prints the activity tree with price and duration (own and total) for each node; activities on the critical path are highlighted. At the end it shows total price, total duration, a summary of materials and resources (counts), and the critical path.

@@ -5,6 +5,14 @@ import (
 	"testing"
 )
 
+func TestComplexMaterial_CalculatePrice_NilMeasurableMaterial(t *testing.T) {
+	c := NewComplexMaterial("Only", "No measurable", *unit.NewPrice(50, "EUR"), 1, nil)
+	got := c.CalculatePrice()
+	if got != 50 {
+		t.Errorf("CalculatePrice() with nil MeasurableMaterial = %v, want 50", got)
+	}
+}
+
 func TestComplexMaterial_CalculatePrice(t *testing.T) {
 	measPrice := *unit.NewPrice(10, "EUR")
 	measQty := *unit.NewMeasurableQuantity(2, unit.UnitMeter)

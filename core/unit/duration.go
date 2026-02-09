@@ -47,7 +47,8 @@ func (d *Duration) SetUnit(unit DurationUnit) *Duration {
 	return d
 }
 
-// ToHours returns the duration in hours for comparison and aggregation.
+// ToHours returns the duration in calendar hours for comparison and aggregation.
+// For example, "1 day" is converted to 24 hours, not working hours. See WORKING_HOURS_PER_DAY for working-time conversion if needed.
 func (d *Duration) ToHours() float64 {
 	if d == nil {
 		return 0

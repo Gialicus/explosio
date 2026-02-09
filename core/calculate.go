@@ -26,7 +26,7 @@ func (a *Activity) CalculatePrice() float64 {
 	return price
 }
 
-// CalculateDuration returns the total duration (activity plus sub-activities) in the root's value/unit.
+// CalculateDuration returns the total duration (activity plus sub-activities) in the same unit as the activity's Duration (e.g. days).
 func (a *Activity) CalculateDuration() float64 {
 	duration := a.Duration.Value
 	for _, activity := range a.Activities {
