@@ -19,3 +19,16 @@ func NewCountableMaterial(name string, description string, price unit.Price, qua
 func (c *CountableMaterial) CalculatePrice() float64 {
 	return c.Price.Value * float64(c.Quantity)
 }
+
+// SetTotalPrice sets the total price and derives the unit price from quantity.
+// If Quantity is 0, unit price is set to 0 (avoids division by zero).
+func (c *CountableMaterial) SetTotalPrice(totalPrice unit.Price) {
+	if c.Quantity == 0 {
+		c.Price = unit.Price{Value: 0, Currency: totalPrice.Currency}
+		return
+	}
+	c.Price = unit.Price{
+		Value:    totalPrice.Value / float64(c.Quantity),
+		Currency: totalPrice.Currency,
+	}
+}

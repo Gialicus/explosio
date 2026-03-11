@@ -43,6 +43,13 @@ func (b *MeasurableMaterialBuilder) WithQuantity(quantity unit.MeasurableQuantit
 	return b
 }
 
+// WithTotalPrice sets the total price and derives the unit price from quantity.
+// Quantity must be set before calling this. If Quantity.Value is 0, unit price becomes 0.
+func (b *MeasurableMaterialBuilder) WithTotalPrice(totalPrice unit.Price) *MeasurableMaterialBuilder {
+	b.measurableMaterial.SetTotalPrice(totalPrice)
+	return b
+}
+
 // Build returns the built measurable material.
 func (b *MeasurableMaterialBuilder) Build() *MeasurableMaterial {
 	return b.measurableMaterial

@@ -19,3 +19,16 @@ func NewMeasurableMaterial(name string, description string, price unit.Price, qu
 func (m *MeasurableMaterial) CalculatePrice() float64 {
 	return m.Price.Value * m.Quantity.Value
 }
+
+// SetTotalPrice sets the total price and derives the unit price from quantity.
+// If Quantity.Value is 0, unit price is set to 0 (avoids division by zero).
+func (m *MeasurableMaterial) SetTotalPrice(totalPrice unit.Price) {
+	if m.Quantity.Value == 0 {
+		m.Price = unit.Price{Value: 0, Currency: totalPrice.Currency}
+		return
+	}
+	m.Price = unit.Price{
+		Value:    totalPrice.Value / m.Quantity.Value,
+		Currency: totalPrice.Currency,
+	}
+}

@@ -16,6 +16,46 @@ func TestMeasurableMaterial_CalculatePrice(t *testing.T) {
 	}
 }
 
+func TestMeasurableMaterial_SetTotalPrice(t *testing.T) {
+	t.Run("quantity > 0 derives unit price", func(t *testing.T) {
+		m := NewMeasurableMaterial("Cable", "", unit.Price{}, *unit.NewMeasurableQuantity(10, unit.UnitMeter))
+		m.SetTotalPrice(*unit.NewPrice(200, "EUR"))
+		if m.Price.Value != 20 {
+			t.Errorf("SetTotalPrice: unit price = %v, want 20", m.Price.Value)
+		}
+		if m.Price.Currency != "EUR" {
+			t.Errorf("SetTotalPrice: currency = %q, want EUR", m.Price.Currency)
+		}
+		if m.CalculatePrice() != 200 {
+			t.Errorf("CalculatePrice() = %v, want 200", m.CalculatePrice())
+		}
+	})
+	t.Run("quantity 0 sets unit price to 0", func(t *testing.T) {
+		m := NewMeasurableMaterial("Empty", "", unit.Price{}, *unit.NewMeasurableQuantity(0, unit.UnitMeter))
+		m.SetTotalPrice(*unit.NewPrice(100, "EUR"))
+		if m.Price.Value != 0 {
+			t.Errorf("SetTotalPrice with quantity 0: unit price = %v, want 0", m.Price.Value)
+		}
+		if m.Price.Currency != "EUR" {
+			t.Errorf("SetTotalPrice: currency = %q, want EUR", m.Price.Currency)
+		}
+	})
+}
+
+func TestMeasurableMaterialBuilder_WithTotalPrice(t *testing.T) {
+	m := NewMeasurableMaterialBuilder().
+		WithName("Cable").
+		WithQuantity(*unit.NewMeasurableQuantity(10, unit.UnitMeter)).
+		WithTotalPrice(*unit.NewPrice(200, "EUR")).
+		Build()
+	if m.Price.Value != 20 {
+		t.Errorf("WithTotalPrice: unit price = %v, want 20", m.Price.Value)
+	}
+	if m.CalculatePrice() != 200 {
+		t.Errorf("CalculatePrice() = %v, want 200", m.CalculatePrice())
+	}
+}
+
 func TestMeasurableMaterialBuilder_Build(t *testing.T) {
 	price := *unit.NewPrice(20, "EUR")
 	qty := *unit.NewMeasurableQuantity(10, unit.UnitMeter)

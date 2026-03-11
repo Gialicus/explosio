@@ -43,6 +43,13 @@ func (b *CountableMaterialBuilder) WithQuantity(quantity int) *CountableMaterial
 	return b
 }
 
+// WithTotalPrice sets the total price and derives the unit price from quantity.
+// Quantity must be set before calling this. If Quantity is 0, unit price becomes 0.
+func (b *CountableMaterialBuilder) WithTotalPrice(totalPrice unit.Price) *CountableMaterialBuilder {
+	b.countableMaterial.SetTotalPrice(totalPrice)
+	return b
+}
+
 // Build returns the built countable material.
 func (b *CountableMaterialBuilder) Build() *CountableMaterial {
 	return b.countableMaterial
