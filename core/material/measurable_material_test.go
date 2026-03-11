@@ -10,8 +10,9 @@ func TestMeasurableMaterial_CalculatePrice(t *testing.T) {
 	qty := *unit.NewMeasurableQuantity(5, unit.UnitKilogram)
 	m := NewMeasurableMaterial("Cement", "Bags", price, qty)
 	got := m.CalculatePrice()
-	if got != 10.5 {
-		t.Errorf("CalculatePrice() = %v, want 10.5", got)
+	// Total price = unit price * quantity
+	if got != 52.5 {
+		t.Errorf("CalculatePrice() = %v, want 52.5", got)
 	}
 }
 
@@ -33,7 +34,7 @@ func TestMeasurableMaterialBuilder_Build(t *testing.T) {
 	if m.Price.Value != 20 || m.Quantity.Value != 10 {
 		t.Errorf("Build() price/quantity = %v, %v", m.Price, m.Quantity)
 	}
-	if m.CalculatePrice() != 20 {
-		t.Errorf("CalculatePrice() = %v, want 20", m.CalculatePrice())
+	if m.CalculatePrice() != 200 {
+		t.Errorf("CalculatePrice() = %v, want 200 (20 * 10)", m.CalculatePrice())
 	}
 }

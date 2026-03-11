@@ -1,3 +1,4 @@
+// Package core provides the Activity model and operations to build the tree of activities, materials, and durations.
 package core
 
 import (

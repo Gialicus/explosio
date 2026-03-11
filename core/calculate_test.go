@@ -35,9 +35,9 @@ func TestActivity_CalculatePrice(t *testing.T) {
 		a.Price = *unit.NewPrice(50, "EUR")
 		a.AddCountableMaterial(material.NewCountableMaterial("S", "", *unit.NewPrice(5, "EUR"), 10))
 		a.AddMeasurableMaterial(material.NewMeasurableMaterial("M", "", *unit.NewPrice(3, "EUR"), *unit.NewMeasurableQuantity(1, unit.UnitMeter)))
-		// 50 + 5 + 3 = 58
-		if got := a.CalculatePrice(); got != 58 {
-			t.Errorf("CalculatePrice() = %v, want 58", got)
+		// 50 + (5*10) + (3*1) = 103
+		if got := a.CalculatePrice(); got != 103 {
+			t.Errorf("CalculatePrice() = %v, want 103", got)
 		}
 	})
 	t.Run("with human resources", func(t *testing.T) {

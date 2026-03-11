@@ -15,7 +15,7 @@ func NewMeasurableMaterial(name string, description string, price unit.Price, qu
 	return &MeasurableMaterial{Name: name, Description: description, Price: price, Quantity: quantity}
 }
 
-// CalculatePrice returns the material price.
+// CalculatePrice returns the total price of the material (unit price multiplied by quantity).
 func (m *MeasurableMaterial) CalculatePrice() float64 {
-	return m.Price.Value
+	return m.Price.Value * m.Quantity.Value
 }

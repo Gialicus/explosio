@@ -16,7 +16,7 @@ const (
 )
 
 const (
-	WORKING_HOURS_PER_DAY float64 = 8.0
+	WorkingHoursPerDay float64 = 8.0
 )
 
 // Duration represents a time interval (value plus unit).
@@ -48,7 +48,7 @@ func (d *Duration) SetUnit(unit DurationUnit) *Duration {
 }
 
 // ToHours returns the duration in calendar hours for comparison and aggregation.
-// For example, "1 day" is converted to 24 hours, not working hours. See WORKING_HOURS_PER_DAY for working-time conversion if needed.
+// For example, "1 day" is converted to 24 hours, not working hours. See WorkingHoursPerDay for working-time conversion if needed.
 func (d *Duration) ToHours() float64 {
 	if d == nil {
 		return 0

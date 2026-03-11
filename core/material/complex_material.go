@@ -17,12 +17,12 @@ func NewComplexMaterial(name string, description string, price unit.Price, unitQ
 	return &ComplexMaterial{Name: name, Description: description, Price: price, UnitQuantity: unitQuantity, MeasurableMaterial: measurableMaterial}
 }
 
-// CalculatePrice returns the complex price plus the measurable material price.
+// CalculatePrice returns the complex price plus the measurable material price multiplied by unit quantity.
 // If MeasurableMaterial is nil, returns only the complex Price.Value.
 func (c *ComplexMaterial) CalculatePrice() float64 {
 	price := c.Price.Value
 	if c.MeasurableMaterial != nil {
-		price += c.MeasurableMaterial.CalculatePrice()
+		price += float64(c.UnitQuantity) * c.MeasurableMaterial.CalculatePrice()
 	}
 	return price
 }

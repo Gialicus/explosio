@@ -15,7 +15,7 @@ func NewCountableMaterial(name string, description string, price unit.Price, qua
 	return &CountableMaterial{Name: name, Description: description, Price: price, Quantity: quantity}
 }
 
-// CalculatePrice returns the unit price of the material (not multiplied by Quantity).
+// CalculatePrice returns the total price of the material (unit price multiplied by quantity).
 func (c *CountableMaterial) CalculatePrice() float64 {
-	return c.Price.Value
+	return c.Price.Value * float64(c.Quantity)
 }
