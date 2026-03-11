@@ -44,3 +44,33 @@ func (a *Asset) CalculateDailyRate() float64 {
 	}
 	return a.Price.Value / hours * unit.WorkingHoursPerDay
 }
+
+// SetTotalPrice sets the total price. Hourly and daily rates are derived from Price/Duration.
+func (a *Asset) SetTotalPrice(totalPrice unit.Price) {
+	a.Price = totalPrice
+}
+
+// SetHourlyRate sets the hourly rate and derives the total price from duration.
+// If Duration.ToHours() is 0, total price is set to 0.
+func (a *Asset) SetHourlyRate(rate unit.Price) {
+	hours := a.Duration.ToHours()
+	if hours == 0 {
+		a.Price = unit.Price{Value: 0, Currency: rate.Currency}
+		return
+	}
+	a.Price = unit.Price{Value: rate.Value * hours, Currency: rate.Currency}
+}
+
+// SetDailyRate sets the daily rate (per working day) and derives the total price from duration.
+// If Duration.ToHours() is 0, total price is set to 0.
+func (a *Asset) SetDailyRate(rate unit.Price) {
+	hours := a.Duration.ToHours()
+	if hours == 0 {
+		a.Price = unit.Price{Value: 0, Currency: rate.Currency}
+		return
+	}
+	a.Price = unit.Price{
+		Value:    rate.Value * hours / unit.WorkingHoursPerDay,
+		Currency: rate.Currency,
+	}
+}

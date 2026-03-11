@@ -45,3 +45,33 @@ func (h *HumanResource) CalculateDailyRate() float64 {
 	}
 	return h.Price.Value / hours * unit.WorkingHoursPerDay
 }
+
+// SetTotalPrice sets the total price. Hourly and daily rates are derived from Price/Duration.
+func (h *HumanResource) SetTotalPrice(totalPrice unit.Price) {
+	h.Price = totalPrice
+}
+
+// SetHourlyRate sets the hourly rate and derives the total price from duration.
+// If Duration.ToHours() is 0, total price is set to 0.
+func (h *HumanResource) SetHourlyRate(rate unit.Price) {
+	hours := h.Duration.ToHours()
+	if hours == 0 {
+		h.Price = unit.Price{Value: 0, Currency: rate.Currency}
+		return
+	}
+	h.Price = unit.Price{Value: rate.Value * hours, Currency: rate.Currency}
+}
+
+// SetDailyRate sets the daily rate (per working day) and derives the total price from duration.
+// If Duration.ToHours() is 0, total price is set to 0.
+func (h *HumanResource) SetDailyRate(rate unit.Price) {
+	hours := h.Duration.ToHours()
+	if hours == 0 {
+		h.Price = unit.Price{Value: 0, Currency: rate.Currency}
+		return
+	}
+	h.Price = unit.Price{
+		Value:    rate.Value * hours / unit.WorkingHoursPerDay,
+		Currency: rate.Currency,
+	}
+}

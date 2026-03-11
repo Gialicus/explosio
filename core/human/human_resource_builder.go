@@ -36,6 +36,26 @@ func (b *HumanResourceBuilder) WithPrice(price unit.Price) *HumanResourceBuilder
 	return b
 }
 
+// WithTotalPrice sets the total price. Hourly and daily rates are derived from Price/Duration.
+func (b *HumanResourceBuilder) WithTotalPrice(totalPrice unit.Price) *HumanResourceBuilder {
+	b.humanResource.SetTotalPrice(totalPrice)
+	return b
+}
+
+// WithHourlyRate sets the hourly rate and derives the total price from duration.
+// Duration must be set before calling this. If Duration.ToHours() is 0, total price becomes 0.
+func (b *HumanResourceBuilder) WithHourlyRate(rate unit.Price) *HumanResourceBuilder {
+	b.humanResource.SetHourlyRate(rate)
+	return b
+}
+
+// WithDailyRate sets the daily rate (per working day) and derives the total price from duration.
+// Duration must be set before calling this. If Duration.ToHours() is 0, total price becomes 0.
+func (b *HumanResourceBuilder) WithDailyRate(rate unit.Price) *HumanResourceBuilder {
+	b.humanResource.SetDailyRate(rate)
+	return b
+}
+
 // Build builds the human resource.
 func (b *HumanResourceBuilder) Build() *HumanResource {
 	return b.humanResource

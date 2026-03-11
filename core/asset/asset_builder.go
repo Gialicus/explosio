@@ -36,6 +36,26 @@ func (b *AssetBuilder) WithDuration(duration unit.Duration) *AssetBuilder {
 	return b
 }
 
+// WithTotalPrice sets the total price. Hourly and daily rates are derived from Price/Duration.
+func (b *AssetBuilder) WithTotalPrice(totalPrice unit.Price) *AssetBuilder {
+	b.asset.SetTotalPrice(totalPrice)
+	return b
+}
+
+// WithHourlyRate sets the hourly rate and derives the total price from duration.
+// Duration must be set before calling this. If Duration.ToHours() is 0, total price becomes 0.
+func (b *AssetBuilder) WithHourlyRate(rate unit.Price) *AssetBuilder {
+	b.asset.SetHourlyRate(rate)
+	return b
+}
+
+// WithDailyRate sets the daily rate (per working day) and derives the total price from duration.
+// Duration must be set before calling this. If Duration.ToHours() is 0, total price becomes 0.
+func (b *AssetBuilder) WithDailyRate(rate unit.Price) *AssetBuilder {
+	b.asset.SetDailyRate(rate)
+	return b
+}
+
 // Build builds the asset.
 func (b *AssetBuilder) Build() *Asset {
 	return b.asset
