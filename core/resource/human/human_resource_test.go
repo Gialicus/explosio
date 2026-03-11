@@ -56,33 +56,42 @@ func TestHumanResource_SetDailyRate(t *testing.T) {
 }
 
 func TestHumanResourceBuilder_WithTotalPrice(t *testing.T) {
-	h := NewHumanResourceBuilder().
+	h, err := NewHumanResourceBuilder().
 		WithName("Plumber").
 		WithDuration(*unit.NewDuration(1, unit.DurationUnitDay)).
 		WithTotalPrice(*unit.NewPrice(100, "EUR")).
 		Build()
+	if err != nil {
+		t.Fatalf("Build() error = %v", err)
+	}
 	if h.Price.Value != 100 {
 		t.Errorf("WithTotalPrice: Price = %v, want 100", h.Price.Value)
 	}
 }
 
 func TestHumanResourceBuilder_WithHourlyRate(t *testing.T) {
-	h := NewHumanResourceBuilder().
+	h, err := NewHumanResourceBuilder().
 		WithName("Plumber").
 		WithDuration(*unit.NewDuration(1, unit.DurationUnitDay)).
 		WithHourlyRate(*unit.NewPrice(10, "EUR")).
 		Build()
+	if err != nil {
+		t.Fatalf("Build() error = %v", err)
+	}
 	if h.Price.Value != 240 {
 		t.Errorf("WithHourlyRate: Price = %v, want 240 (10 * 24)", h.Price.Value)
 	}
 }
 
 func TestHumanResourceBuilder_WithDailyRate(t *testing.T) {
-	h := NewHumanResourceBuilder().
+	h, err := NewHumanResourceBuilder().
 		WithName("Plumber").
 		WithDuration(*unit.NewDuration(8, unit.DurationUnitHour)).
 		WithDailyRate(*unit.NewPrice(80, "EUR")).
 		Build()
+	if err != nil {
+		t.Fatalf("Build() error = %v", err)
+	}
 	if h.Price.Value != 80 {
 		t.Errorf("WithDailyRate: Price = %v, want 80", h.Price.Value)
 	}

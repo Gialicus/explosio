@@ -28,18 +28,24 @@ func TestComplexMaterial_CalculatePrice(t *testing.T) {
 }
 
 func TestComplexMaterialBuilder_Build(t *testing.T) {
-	meas := NewMeasurableMaterialBuilder().
+	meas, err := NewMeasurableMaterialBuilder().
 		WithName("Unit").
 		WithPrice(*unit.NewPrice(5, "EUR")).
 		WithQuantity(*unit.NewMeasurableQuantity(1, unit.UnitMeter)).
 		Build()
-	c := NewComplexMaterialBuilder().
+	if err != nil {
+		t.Fatalf("MeasurableMaterial Build() error = %v", err)
+	}
+	c, err := NewComplexMaterialBuilder().
 		WithName("Bundle").
 		WithDescription("Bundle of units").
 		WithPrice(*unit.NewPrice(20, "EUR")).
 		WithUnitQuantity(3).
 		WithMeasurableMaterial(meas).
 		Build()
+	if err != nil {
+		t.Fatalf("Build() error = %v", err)
+	}
 	if c == nil {
 		t.Fatal("Build() returned nil")
 	}

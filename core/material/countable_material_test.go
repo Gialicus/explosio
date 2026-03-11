@@ -42,11 +42,14 @@ func TestCountableMaterial_SetTotalPrice(t *testing.T) {
 }
 
 func TestCountableMaterialBuilder_WithTotalPrice(t *testing.T) {
-	c := NewCountableMaterialBuilder().
+	c, err := NewCountableMaterialBuilder().
 		WithName("Viti").
 		WithQuantity(100).
 		WithTotalPrice(*unit.NewPrice(50, "EUR")).
 		Build()
+	if err != nil {
+		t.Fatalf("Build() error = %v", err)
+	}
 	if c.Price.Value != 0.5 {
 		t.Errorf("WithTotalPrice: unit price = %v, want 0.5", c.Price.Value)
 	}
@@ -57,12 +60,15 @@ func TestCountableMaterialBuilder_WithTotalPrice(t *testing.T) {
 
 func TestCountableMaterialBuilder_Build(t *testing.T) {
 	price := *unit.NewPrice(25, "EUR")
-	c := NewCountableMaterialBuilder().
+	c, err := NewCountableMaterialBuilder().
 		WithName("Switches").
 		WithDescription("Light switches").
 		WithPrice(price).
 		WithQuantity(4).
 		Build()
+	if err != nil {
+		t.Fatalf("Build() error = %v", err)
+	}
 	if c == nil {
 		t.Fatal("Build() returned nil")
 	}

@@ -2,9 +2,9 @@
 package core
 
 import (
-	"explosio/core/asset"
-	"explosio/core/human"
 	"explosio/core/material"
+	"explosio/core/resource/asset"
+	"explosio/core/resource/human"
 	"explosio/core/unit"
 )
 

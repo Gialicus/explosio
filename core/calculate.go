@@ -2,26 +2,35 @@ package core
 
 // This file contains calculation methods on Activity (price, duration, quantity, critical path).
 
+// pricers returns all direct price contributors (materials, sub-activities, human resources, assets).
+func (a *Activity) pricers() []Pricer {
+	var p []Pricer
+	for _, m := range a.ComplexMaterials {
+		p = append(p, m)
+	}
+	for _, m := range a.CountableMaterials {
+		p = append(p, m)
+	}
+	for _, m := range a.MeasurableMaterials {
+		p = append(p, m)
+	}
+	for _, child := range a.Activities {
+		p = append(p, child)
+	}
+	for _, h := range a.HumanResources {
+		p = append(p, h)
+	}
+	for _, as := range a.Assets {
+		p = append(p, as)
+	}
+	return p
+}
+
 // CalculatePrice returns the total price (activity plus all materials and sub-activities).
 func (a *Activity) CalculatePrice() float64 {
 	price := a.Price.Value
-	for _, complexMaterial := range a.ComplexMaterials {
-		price += complexMaterial.CalculatePrice()
-	}
-	for _, countableMaterial := range a.CountableMaterials {
-		price += countableMaterial.CalculatePrice()
-	}
-	for _, measurableMaterial := range a.MeasurableMaterials {
-		price += measurableMaterial.CalculatePrice()
-	}
-	for _, activity := range a.Activities {
-		price += activity.CalculatePrice()
-	}
-	for _, humanResource := range a.HumanResources {
-		price += humanResource.CalculatePrice()
-	}
-	for _, asset := range a.Assets {
-		price += asset.CalculatePrice()
+	for _, p := range a.pricers() {
+		price += p.CalculatePrice()
 	}
 	return price
 }

@@ -1,6 +1,9 @@
 package material
 
-import "explosio/core/unit"
+import (
+	"errors"
+	"explosio/core/unit"
+)
 
 // MeasurableMaterialBuilder builds a measurable material.
 type MeasurableMaterialBuilder struct {
@@ -50,7 +53,19 @@ func (b *MeasurableMaterialBuilder) WithTotalPrice(totalPrice unit.Price) *Measu
 	return b
 }
 
-// Build returns the built measurable material.
-func (b *MeasurableMaterialBuilder) Build() *MeasurableMaterial {
-	return b.measurableMaterial
+// Build returns the built measurable material. Returns an error if name is empty, price is invalid (negative value or empty currency), or quantity is negative.
+func (b *MeasurableMaterialBuilder) Build() (*MeasurableMaterial, error) {
+	if b.measurableMaterial.Name == "" {
+		return nil, errors.New("measurable material name cannot be empty")
+	}
+	if b.measurableMaterial.Price.Value < 0 {
+		return nil, errors.New("measurable material price cannot be negative")
+	}
+	if b.measurableMaterial.Price.Currency == "" {
+		return nil, errors.New("measurable material price currency cannot be empty")
+	}
+	if b.measurableMaterial.Quantity.Value < 0 {
+		return nil, errors.New("measurable material quantity cannot be negative")
+	}
+	return b.measurableMaterial, nil
 }

@@ -1,6 +1,9 @@
 package human
 
-import "explosio/core/unit"
+import (
+	"errors"
+	"explosio/core/unit"
+)
 
 // HumanResourceBuilder builds a human resource.
 type HumanResourceBuilder struct {
@@ -56,7 +59,19 @@ func (b *HumanResourceBuilder) WithDailyRate(rate unit.Price) *HumanResourceBuil
 	return b
 }
 
-// Build builds the human resource.
-func (b *HumanResourceBuilder) Build() *HumanResource {
-	return b.humanResource
+// Build builds the human resource. Returns an error if name is empty, duration is negative, or price is invalid (negative value or empty currency).
+func (b *HumanResourceBuilder) Build() (*HumanResource, error) {
+	if b.humanResource.Name == "" {
+		return nil, errors.New("human resource name cannot be empty")
+	}
+	if b.humanResource.Duration.Value < 0 {
+		return nil, errors.New("human resource duration cannot be negative")
+	}
+	if b.humanResource.Price.Value < 0 {
+		return nil, errors.New("human resource price cannot be negative")
+	}
+	if b.humanResource.Price.Currency == "" {
+		return nil, errors.New("human resource price currency cannot be empty")
+	}
+	return b.humanResource, nil
 }

@@ -56,33 +56,42 @@ func TestAsset_SetDailyRate(t *testing.T) {
 }
 
 func TestAssetBuilder_WithTotalPrice(t *testing.T) {
-	a := NewAssetBuilder().
+	a, err := NewAssetBuilder().
 		WithName("Tool").
 		WithDuration(*unit.NewDuration(1, unit.DurationUnitDay)).
 		WithTotalPrice(*unit.NewPrice(100, "EUR")).
 		Build()
+	if err != nil {
+		t.Fatalf("Build() error = %v", err)
+	}
 	if a.Price.Value != 100 {
 		t.Errorf("WithTotalPrice: Price = %v, want 100", a.Price.Value)
 	}
 }
 
 func TestAssetBuilder_WithHourlyRate(t *testing.T) {
-	a := NewAssetBuilder().
+	a, err := NewAssetBuilder().
 		WithName("Tool").
 		WithDuration(*unit.NewDuration(1, unit.DurationUnitDay)).
 		WithHourlyRate(*unit.NewPrice(10, "EUR")).
 		Build()
+	if err != nil {
+		t.Fatalf("Build() error = %v", err)
+	}
 	if a.Price.Value != 240 {
 		t.Errorf("WithHourlyRate: Price = %v, want 240 (10 * 24)", a.Price.Value)
 	}
 }
 
 func TestAssetBuilder_WithDailyRate(t *testing.T) {
-	a := NewAssetBuilder().
+	a, err := NewAssetBuilder().
 		WithName("Tool").
 		WithDuration(*unit.NewDuration(8, unit.DurationUnitHour)).
 		WithDailyRate(*unit.NewPrice(80, "EUR")).
 		Build()
+	if err != nil {
+		t.Fatalf("Build() error = %v", err)
+	}
 	if a.Price.Value != 80 {
 		t.Errorf("WithDailyRate: Price = %v, want 80", a.Price.Value)
 	}

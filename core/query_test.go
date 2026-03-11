@@ -1,9 +1,9 @@
 package core
 
 import (
-	"explosio/core/asset"
-	"explosio/core/human"
 	"explosio/core/material"
+	"explosio/core/resource/asset"
+	"explosio/core/resource/human"
 	"explosio/core/unit"
 	"testing"
 )
@@ -22,17 +22,23 @@ func buildQueryTestTree(t *testing.T) *Activity {
 	a.AddCountableMaterial(material.NewCountableMaterial("Screws", "", *unit.NewPrice(5, "EUR"), 10))
 	a.AddMeasurableMaterial(material.NewMeasurableMaterial("Cable", "", *unit.NewPrice(3, "EUR"), *unit.NewMeasurableQuantity(10, unit.UnitMeter)))
 
-	measUnit := material.NewMeasurableMaterialBuilder().
+	measUnit, err := material.NewMeasurableMaterialBuilder().
 		WithName("Pipe").
 		WithPrice(*unit.NewPrice(10, "EUR")).
 		WithQuantity(*unit.NewMeasurableQuantity(2, unit.UnitMeter)).
 		Build()
-	complexMat := material.NewComplexMaterialBuilder().
+	if err != nil {
+		t.Fatalf("MeasurableMaterial Build() error = %v", err)
+	}
+	complexMat, err := material.NewComplexMaterialBuilder().
 		WithName("Pipes").
 		WithPrice(*unit.NewPrice(50, "EUR")).
 		WithUnitQuantity(5).
 		WithMeasurableMaterial(measUnit).
 		Build()
+	if err != nil {
+		t.Fatalf("ComplexMaterial Build() error = %v", err)
+	}
 	b.AddComplexMaterial(complexMat)
 	b.AddHumanResource(human.NewHumanResource("Plumber", "", *unit.NewDuration(1, unit.DurationUnitDay), *unit.NewPrice(100, "EUR")))
 	b.AddAsset(asset.NewAsset("Tool", "", *unit.NewPrice(30, "EUR"), *unit.NewDuration(0, unit.DurationUnitDay)))

@@ -8,12 +8,15 @@ import (
 func TestActivityBuilder_Build(t *testing.T) {
 	dur := *unit.NewDuration(2, unit.DurationUnitDay)
 	price := *unit.NewPrice(1000, "EUR")
-	a := NewActivityBuilder().
+	a, err := NewActivityBuilder().
 		WithName("Test").
 		WithDescription("Test activity").
 		WithDuration(dur).
 		WithPrice(price).
 		Build()
+	if err != nil {
+		t.Fatalf("Build() error = %v", err)
+	}
 	if a == nil {
 		t.Fatal("Build() returned nil")
 	}
@@ -38,4 +41,47 @@ func TestActivityBuilder_Build(t *testing.T) {
 	if a.MeasurableMaterials != nil || len(a.MeasurableMaterials) != 0 {
 		t.Errorf("Build() MeasurableMaterials should be empty, got len=%d", len(a.MeasurableMaterials))
 	}
+}
+
+func TestActivityBuilder_Build_validation(t *testing.T) {
+	t.Run("empty name returns error", func(t *testing.T) {
+		_, err := NewActivityBuilder().
+			WithName("").
+			WithDuration(*unit.NewDuration(1, unit.DurationUnitDay)).
+			WithPrice(*unit.NewPrice(100, "EUR")).
+			Build()
+		if err == nil {
+			t.Error("Build() with empty name should return error")
+		}
+	})
+	t.Run("negative duration returns error", func(t *testing.T) {
+		_, err := NewActivityBuilder().
+			WithName("Test").
+			WithDuration(*unit.NewDuration(-1, unit.DurationUnitDay)).
+			WithPrice(*unit.NewPrice(100, "EUR")).
+			Build()
+		if err == nil {
+			t.Error("Build() with negative duration should return error")
+		}
+	})
+	t.Run("negative price returns error", func(t *testing.T) {
+		_, err := NewActivityBuilder().
+			WithName("Test").
+			WithDuration(*unit.NewDuration(1, unit.DurationUnitDay)).
+			WithPrice(*unit.NewPrice(-10, "EUR")).
+			Build()
+		if err == nil {
+			t.Error("Build() with negative price should return error")
+		}
+	})
+	t.Run("empty currency returns error", func(t *testing.T) {
+		_, err := NewActivityBuilder().
+			WithName("Test").
+			WithDuration(*unit.NewDuration(1, unit.DurationUnitDay)).
+			WithPrice(*unit.NewPrice(100, "")).
+			Build()
+		if err == nil {
+			t.Error("Build() with empty currency should return error")
+		}
+	})
 }

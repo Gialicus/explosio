@@ -1,6 +1,9 @@
 package asset
 
-import "explosio/core/unit"
+import (
+	"errors"
+	"explosio/core/unit"
+)
 
 // AssetBuilder builds an asset.
 type AssetBuilder struct {
@@ -56,7 +59,19 @@ func (b *AssetBuilder) WithDailyRate(rate unit.Price) *AssetBuilder {
 	return b
 }
 
-// Build builds the asset.
-func (b *AssetBuilder) Build() *Asset {
-	return b.asset
+// Build builds the asset. Returns an error if name is empty, duration is negative, or price is invalid (negative value or empty currency).
+func (b *AssetBuilder) Build() (*Asset, error) {
+	if b.asset.Name == "" {
+		return nil, errors.New("asset name cannot be empty")
+	}
+	if b.asset.Duration.Value < 0 {
+		return nil, errors.New("asset duration cannot be negative")
+	}
+	if b.asset.Price.Value < 0 {
+		return nil, errors.New("asset price cannot be negative")
+	}
+	if b.asset.Price.Currency == "" {
+		return nil, errors.New("asset price currency cannot be empty")
+	}
+	return b.asset, nil
 }

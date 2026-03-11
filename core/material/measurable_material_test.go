@@ -43,11 +43,14 @@ func TestMeasurableMaterial_SetTotalPrice(t *testing.T) {
 }
 
 func TestMeasurableMaterialBuilder_WithTotalPrice(t *testing.T) {
-	m := NewMeasurableMaterialBuilder().
+	m, err := NewMeasurableMaterialBuilder().
 		WithName("Cable").
 		WithQuantity(*unit.NewMeasurableQuantity(10, unit.UnitMeter)).
 		WithTotalPrice(*unit.NewPrice(200, "EUR")).
 		Build()
+	if err != nil {
+		t.Fatalf("Build() error = %v", err)
+	}
 	if m.Price.Value != 20 {
 		t.Errorf("WithTotalPrice: unit price = %v, want 20", m.Price.Value)
 	}
@@ -59,12 +62,15 @@ func TestMeasurableMaterialBuilder_WithTotalPrice(t *testing.T) {
 func TestMeasurableMaterialBuilder_Build(t *testing.T) {
 	price := *unit.NewPrice(20, "EUR")
 	qty := *unit.NewMeasurableQuantity(10, unit.UnitMeter)
-	m := NewMeasurableMaterialBuilder().
+	m, err := NewMeasurableMaterialBuilder().
 		WithName("Cable").
 		WithDescription("Copper cable").
 		WithPrice(price).
 		WithQuantity(qty).
 		Build()
+	if err != nil {
+		t.Fatalf("Build() error = %v", err)
+	}
 	if m == nil {
 		t.Fatal("Build() returned nil")
 	}

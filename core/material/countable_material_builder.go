@@ -1,6 +1,9 @@
 package material
 
-import "explosio/core/unit"
+import (
+	"errors"
+	"explosio/core/unit"
+)
 
 // CountableMaterialBuilder builds a countable material.
 type CountableMaterialBuilder struct {
@@ -50,7 +53,19 @@ func (b *CountableMaterialBuilder) WithTotalPrice(totalPrice unit.Price) *Counta
 	return b
 }
 
-// Build returns the built countable material.
-func (b *CountableMaterialBuilder) Build() *CountableMaterial {
-	return b.countableMaterial
+// Build returns the built countable material. Returns an error if name is empty, price is invalid (negative value or empty currency), or quantity is negative.
+func (b *CountableMaterialBuilder) Build() (*CountableMaterial, error) {
+	if b.countableMaterial.Name == "" {
+		return nil, errors.New("countable material name cannot be empty")
+	}
+	if b.countableMaterial.Price.Value < 0 {
+		return nil, errors.New("countable material price cannot be negative")
+	}
+	if b.countableMaterial.Price.Currency == "" {
+		return nil, errors.New("countable material price currency cannot be empty")
+	}
+	if b.countableMaterial.Quantity < 0 {
+		return nil, errors.New("countable material quantity cannot be negative")
+	}
+	return b.countableMaterial, nil
 }

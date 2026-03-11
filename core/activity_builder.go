@@ -1,6 +1,9 @@
 package core
 
-import "explosio/core/unit"
+import (
+	"errors"
+	"explosio/core/unit"
+)
 
 // ActivityBuilder builds an activity.
 type ActivityBuilder struct {
@@ -38,7 +41,19 @@ func (b *ActivityBuilder) WithPrice(price unit.Price) *ActivityBuilder {
 	return b
 }
 
-// Build returns the built activity.
-func (b *ActivityBuilder) Build() *Activity {
-	return b.activity
+// Build returns the built activity. Returns an error if name is empty, duration is negative, or price is invalid (negative value or empty currency).
+func (b *ActivityBuilder) Build() (*Activity, error) {
+	if b.activity.Name == "" {
+		return nil, errors.New("activity name cannot be empty")
+	}
+	if b.activity.Duration.Value < 0 {
+		return nil, errors.New("activity duration cannot be negative")
+	}
+	if b.activity.Price.Value < 0 {
+		return nil, errors.New("activity price cannot be negative")
+	}
+	if b.activity.Price.Currency == "" {
+		return nil, errors.New("activity price currency cannot be empty")
+	}
+	return b.activity, nil
 }

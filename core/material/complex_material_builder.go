@@ -1,6 +1,9 @@
 package material
 
-import "explosio/core/unit"
+import (
+	"errors"
+	"explosio/core/unit"
+)
 
 // ComplexMaterialBuilder builds a complex material.
 type ComplexMaterialBuilder struct {
@@ -50,7 +53,19 @@ func (b *ComplexMaterialBuilder) WithMeasurableMaterial(m *MeasurableMaterial) *
 	return b
 }
 
-// Build returns the built complex material.
-func (b *ComplexMaterialBuilder) Build() *ComplexMaterial {
-	return b.complexMaterial
+// Build returns the built complex material. Returns an error if name is empty, price is invalid (negative value or empty currency), or unit quantity is negative.
+func (b *ComplexMaterialBuilder) Build() (*ComplexMaterial, error) {
+	if b.complexMaterial.Name == "" {
+		return nil, errors.New("complex material name cannot be empty")
+	}
+	if b.complexMaterial.Price.Value < 0 {
+		return nil, errors.New("complex material price cannot be negative")
+	}
+	if b.complexMaterial.Price.Currency == "" {
+		return nil, errors.New("complex material price currency cannot be empty")
+	}
+	if b.complexMaterial.UnitQuantity < 0 {
+		return nil, errors.New("complex material unit quantity cannot be negative")
+	}
+	return b.complexMaterial, nil
 }
