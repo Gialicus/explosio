@@ -26,3 +26,12 @@ func (c *ComplexMaterial) CalculatePrice() float64 {
 	}
 	return price
 }
+
+// Clone returns a deep copy of the complex material.
+func (c *ComplexMaterial) Clone() *ComplexMaterial {
+	var meas *MeasurableMaterial
+	if c.MeasurableMaterial != nil {
+		meas = c.MeasurableMaterial.Clone()
+	}
+	return NewComplexMaterial(c.Name, c.Description, c.Price, c.UnitQuantity, meas)
+}

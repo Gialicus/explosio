@@ -23,3 +23,8 @@ func NewHumanResource(name string, description string, duration unit.Duration, p
 		},
 	}
 }
+
+// Clone returns a deep copy of the human resource.
+func (h *HumanResource) Clone() *HumanResource {
+	return NewHumanResource(h.Name, h.Description, h.Duration, h.Price)
+}

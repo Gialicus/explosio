@@ -10,33 +10,36 @@ Application for modelling activity trees (e.g. renovations) with durations, pric
 
 ```bash
 go build -o explosio .
-```
-
-Or, to build all packages:
-
-```bash
-go build ./...
-```
-
-To run:
-
-```bash
-go run .
-```
-
-Or, after building:
-
-```bash
 ./explosio
 ```
 
+## CLI commands
+
+- `explosio` or `explosio run` — Run demo project
+- `explosio load <file>` — Load project from JSON or YAML and print
+- `explosio export [-input <file>] [-output <file>] [-format json|yaml]` — Export project
+- `explosio query -input <file> [-price-range min-max] [-name <pattern>] [-material <name>] [-resource <name>] [-sort name|price|duration]` — Filter activities
+- `explosio gantt [-input <file>] [-start YYYY-MM-DD]` — Print ASCII Gantt chart
+- `explosio validate [-input <file>]` — Validate project (circular deps, references, warnings)
+- `explosio help` — Show usage
+
 ## Project structure
 
-- **main.go**: Entry point; builds a sample 5-level activity tree (home renovation), prints it, and shows totals and critical path.
-- **core/**: `Activity` model, calculation methods (price, duration, quantity, critical path), and formatted tree printing.
-- **core/material/**: Material types (complex, countable, measurable).
-- **core/unit/**: Types for durations, prices, and measurable quantities.
+- **main.go**, **demo.go**: Entry point and demo tree
+- **core/**: Activity model, CPM, calculations, serialization, Gantt, validation
+- **core/material/**: Material types (complex, countable, measurable)
+- **core/unit/**: Types for durations, prices, dates, measurable quantities
+- **core/resource/**: Human resources and assets
 
-## Output
+## Features
 
-The program prints the activity tree with price and duration (own and total) for each node; activities on the critical path are highlighted. At the end it shows total price, total duration, a summary of materials and resources (counts), and the critical path.
+- Activity tree with materials, human resources, assets
+- CPM critical path and slack (float) calculation
+- Explicit dependencies (`DependsOn`) for cross-branch CPM
+- Cost breakdown by category (activities, materials, human, assets)
+- Milestones (zero-duration activities)
+- JSON/YAML persistence
+- ASCII Gantt chart with dates
+- Filter and sort activities
+- Clone for scenario comparison
+- Validation (circular dependencies, references, warnings)

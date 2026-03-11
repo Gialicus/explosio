@@ -105,7 +105,7 @@ func prettyPrintAssets(assets []*asset.Asset, prefix string, showConnector bool)
 }
 
 // prettyPrintRecursive walks the tree in depth and prints activities (with critical path icon) and materials.
-func prettyPrintRecursive(activities []*Activity, prefix string, showConnector bool, criticalSet map[*Activity]bool) {
+func prettyPrintRecursive(activities []*Activity, prefix string, showConnector bool, criticalSet map[*Activity]bool, slackMap map[*Activity]SlackInfo) {
 	for i, activity := range activities {
 		isLastItem := i == len(activities)-1
 		connector := newConnector(showConnector, "", isLastItem)
@@ -119,7 +119,15 @@ func prettyPrintRecursive(activities []*Activity, prefix string, showConnector b
 		if criticalSet != nil && criticalSet[activity] {
 			icon = "🔴"
 		}
+		if activity.IsMilestone() {
+			icon = "⏱"
+		}
 		row := icon + " " + activity.Name + ownFmt + totalFmt
+		if slackMap != nil && criticalSet != nil && !criticalSet[activity] {
+			if info, ok := slackMap[activity]; ok && info.Slack >= 0.5 {
+				row += fmt.Sprintf(" [slack: %.0fh]", info.Slack)
+			}
+		}
 		fmt.Println(prefix + connector + row)
 		childPrefix := newChildPrefix(isLastItem, prefix)
 		prettyPrintComplexMaterials(activity.ComplexMaterials, childPrefix, true)
@@ -127,13 +135,19 @@ func prettyPrintRecursive(activities []*Activity, prefix string, showConnector b
 		prettyPrintMeasurableMaterials(activity.MeasurableMaterials, childPrefix, true)
 		prettyPrintHumanResources(activity.HumanResources, childPrefix, true)
 		prettyPrintAssets(activity.Assets, childPrefix, true)
-		prettyPrintRecursive(activity.Activities, childPrefix, true, criticalSet)
+		prettyPrintRecursive(activity.Activities, childPrefix, true, criticalSet, slackMap)
 	}
 }
 
 // PrettyPrint prints the activity and material tree. criticalPath is the result of root.CalculateCriticalPath();
 // activities on the path are shown with red, others with green. Pass nil for criticalPath to show all as non-critical.
+// If root is provided (single activity), slack is computed and shown for non-critical activities.
 func PrettyPrint(activities []*Activity, criticalPath []*Activity) {
+	PrettyPrintWithSlack(activities, criticalPath, nil)
+}
+
+// PrettyPrintWithSlack prints the tree with optional slack info. If slackMap is nil and activities has one root, slack is computed.
+func PrettyPrintWithSlack(activities []*Activity, criticalPath []*Activity, slackMap map[*Activity]SlackInfo) {
 	var criticalSet map[*Activity]bool
 	if criticalPath != nil {
 		criticalSet = make(map[*Activity]bool)
@@ -141,18 +155,23 @@ func PrettyPrint(activities []*Activity, criticalPath []*Activity) {
 			criticalSet[a] = true
 		}
 	}
+	if slackMap == nil && len(activities) == 1 {
+		slackMap = activities[0].CalculateSlack()
+	}
 	fmt.Println("--------------------------------")
 	fmt.Printf("Legend:\n")
 	fmt.Println("🟢: Non-critical activity")
 	fmt.Println("🔴: Critical activity")
+	fmt.Println("⏱: Milestone (zero duration)")
 	fmt.Println("📦: Complex material")
 	fmt.Println("🔢: Countable material")
 	fmt.Println("📏: Measurable material")
 	fmt.Println("[]: Own price and duration (blue variants)")
 	fmt.Println("(): Total price and duration (red variants)")
 	fmt.Println("<>: Measurable material in complex material")
+	fmt.Println("[slack: Xh]: Float time for non-critical activities (hours)")
 	fmt.Println("--------------------------------")
 	fmt.Println("   Activity and Material Tree:")
 	fmt.Println("--------------------------------")
-	prettyPrintRecursive(activities, "", false, criticalSet)
+	prettyPrintRecursive(activities, "", false, criticalSet, slackMap)
 }

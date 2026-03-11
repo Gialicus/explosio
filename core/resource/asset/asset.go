@@ -23,3 +23,8 @@ func NewAsset(name string, description string, price unit.Price, duration unit.D
 		},
 	}
 }
+
+// Clone returns a deep copy of the asset.
+func (a *Asset) Clone() *Asset {
+	return NewAsset(a.Name, a.Description, a.Price, a.Duration)
+}

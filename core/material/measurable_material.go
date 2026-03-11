@@ -32,3 +32,8 @@ func (m *MeasurableMaterial) SetTotalPrice(totalPrice unit.Price) {
 		Currency: totalPrice.Currency,
 	}
 }
+
+// Clone returns a deep copy of the measurable material.
+func (m *MeasurableMaterial) Clone() *MeasurableMaterial {
+	return NewMeasurableMaterial(m.Name, m.Description, m.Price, m.Quantity)
+}

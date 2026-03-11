@@ -166,3 +166,64 @@ func TestActivity_CalculateCriticalPath(t *testing.T) {
 		})
 	}
 }
+
+func TestActivity_CostBreakdown(t *testing.T) {
+	root := activityWithDefaults("Root", "")
+	root.Price = *unit.NewPrice(100, "EUR")
+	root.AddCountableMaterial(material.NewCountableMaterial("Screws", "", *unit.NewPrice(2, "EUR"), 5))
+	root.AddHumanResource(human.NewHumanResource("Worker", "", *unit.NewDuration(1, unit.DurationUnitDay), *unit.NewPrice(50, "EUR")))
+	root.AddAsset(asset.NewAsset("Tool", "", *unit.NewPrice(20, "EUR"), *unit.NewDuration(0, unit.DurationUnitDay)))
+
+	child := activityWithDefaults("Child", "")
+	child.Price = *unit.NewPrice(30, "EUR")
+	root.AddActivity(child)
+
+	cb := root.CostBreakdown()
+	if cb.Activities != 130 {
+		t.Errorf("Activities = %.2f, want 130", cb.Activities)
+	}
+	if cb.Materials != 10 {
+		t.Errorf("Materials = %.2f, want 10", cb.Materials)
+	}
+	if cb.Human != 50 {
+		t.Errorf("Human = %.2f, want 50", cb.Human)
+	}
+	if cb.Assets != 20 {
+		t.Errorf("Assets = %.2f, want 20", cb.Assets)
+	}
+	if cb.Total() != root.CalculatePrice() {
+		t.Errorf("CostBreakdown.Total() = %.2f, CalculatePrice() = %.2f", cb.Total(), root.CalculatePrice())
+	}
+}
+
+func TestActivity_CalculateSlack(t *testing.T) {
+	root := activityWithDefaults("Root", "")
+	root.Duration = *unit.NewDuration(1, unit.DurationUnitDay)
+	short := activityWithDefaults("Short", "")
+	short.Duration = *unit.NewDuration(1, unit.DurationUnitDay)
+	long := activityWithDefaults("Long", "")
+	long.Duration = *unit.NewDuration(3, unit.DurationUnitDay)
+	root.AddActivity(short)
+	root.AddActivity(long)
+
+	slackMap := root.CalculateSlack()
+	path := root.CalculateCriticalPath()
+	criticalSet := make(map[*Activity]bool)
+	for _, a := range path {
+		criticalSet[a] = true
+	}
+
+	// Critical path: Root -> Long. Slack for Root and Long should be 0.
+	for _, a := range path {
+		info := slackMap[a]
+		if info.Slack != 0 {
+			t.Errorf("Critical activity %q has slack %.2f, want 0", a.Name, info.Slack)
+		}
+	}
+
+	// Short is non-critical. Should have positive slack (2 days = 48h).
+	info := slackMap[short]
+	if info.Slack <= 0 {
+		t.Errorf("Non-critical Short has slack %.2f, want positive", info.Slack)
+	}
+}

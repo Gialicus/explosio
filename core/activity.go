@@ -9,12 +9,14 @@ import (
 )
 
 // Activity represents a task with name, description, duration, price, sub-activities, and materials (complex, countable, measurable).
+// DependsOn defines explicit dependencies: this activity cannot start until all DependsOn activities have finished.
 type Activity struct {
 	Name                string
 	Description         string
 	Duration            unit.Duration
 	Price               unit.Price
 	Activities          []*Activity
+	DependsOn           []*Activity // Explicit dependencies (must finish before this starts)
 	ComplexMaterials    []*material.ComplexMaterial
 	CountableMaterials  []*material.CountableMaterial
 	MeasurableMaterials []*material.MeasurableMaterial
@@ -35,6 +37,11 @@ func NewActivity(name string, description string, duration unit.Duration, price 
 // AddActivity adds a sub-activity.
 func (a *Activity) AddActivity(activity *Activity) {
 	a.Activities = append(a.Activities, activity)
+}
+
+// AddDependsOn adds an explicit dependency: the given activity must finish before this one starts.
+func (a *Activity) AddDependsOn(activity *Activity) {
+	a.DependsOn = append(a.DependsOn, activity)
 }
 
 // AddComplexMaterial adds a complex material.
@@ -60,4 +67,34 @@ func (a *Activity) AddHumanResource(humanResource *human.HumanResource) {
 // AddAsset adds an asset.
 func (a *Activity) AddAsset(asset *asset.Asset) {
 	a.Assets = append(a.Assets, asset)
+}
+
+// IsMilestone returns true if the activity has zero duration (a checkpoint/milestone).
+func (a *Activity) IsMilestone() bool {
+	return a.Duration.Value == 0
+}
+
+// Clone returns a deep copy of the activity and its subtree (materials, resources, sub-activities).
+// DependsOn references are not cloned (they would point to the original tree); clone a full project to preserve dependencies.
+func (a *Activity) Clone() *Activity {
+	clone := NewActivity(a.Name, a.Description, a.Duration, a.Price)
+	for _, child := range a.Activities {
+		clone.AddActivity(child.Clone())
+	}
+	for _, m := range a.ComplexMaterials {
+		clone.AddComplexMaterial(m.Clone())
+	}
+	for _, m := range a.CountableMaterials {
+		clone.AddCountableMaterial(m.Clone())
+	}
+	for _, m := range a.MeasurableMaterials {
+		clone.AddMeasurableMaterial(m.Clone())
+	}
+	for _, h := range a.HumanResources {
+		clone.AddHumanResource(h.Clone())
+	}
+	for _, as := range a.Assets {
+		clone.AddAsset(as.Clone())
+	}
+	return clone
 }

@@ -32,3 +32,8 @@ func (c *CountableMaterial) SetTotalPrice(totalPrice unit.Price) {
 		Currency: totalPrice.Currency,
 	}
 }
+
+// Clone returns a deep copy of the countable material.
+func (c *CountableMaterial) Clone() *CountableMaterial {
+	return NewCountableMaterial(c.Name, c.Description, c.Price, c.Quantity)
+}

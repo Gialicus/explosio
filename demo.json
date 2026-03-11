@@ -1,0 +1,456 @@
+{
+  "version": "1.0",
+  "root": {
+    "Name": "Home Renovation",
+    "Description": "Complete home renovation project",
+    "Duration": {
+      "Value": 40,
+      "Unit": "day"
+    },
+    "Price": {
+      "Value": 50000,
+      "Currency": "EUR"
+    },
+    "Activities": [
+      {
+        "Name": "Kitchen Renovation",
+        "Description": "Kitchen remodeling",
+        "Duration": {
+          "Value": 15,
+          "Unit": "day"
+        },
+        "Price": {
+          "Value": 20000,
+          "Currency": "EUR"
+        },
+        "Activities": [
+          {
+            "Name": "Install pipes",
+            "Description": "Plumbing installation in kitchen",
+            "Duration": {
+              "Value": 3,
+              "Unit": "day"
+            },
+            "Price": {
+              "Value": 2500,
+              "Currency": "EUR"
+            },
+            "Activities": [
+              {
+                "Name": "Cut and fit pipes",
+                "Description": "Cut and fit pipes to length",
+                "Duration": {
+                  "Value": 1.5,
+                  "Unit": "day"
+                },
+                "Price": {
+                  "Value": 300,
+                  "Currency": "EUR"
+                },
+                "Activities": [
+                  {
+                    "Name": "Measure and mark",
+                    "Description": "Measure and mark pipe cut points",
+                    "Duration": {
+                      "Value": 1,
+                      "Unit": "day"
+                    },
+                    "Price": {
+                      "Value": 100,
+                      "Currency": "EUR"
+                    },
+                    "Activities": null,
+                    "ComplexMaterials": null,
+                    "CountableMaterials": null,
+                    "MeasurableMaterials": null,
+                    "HumanResources": null,
+                    "Assets": null
+                  }
+                ],
+                "ComplexMaterials": null,
+                "CountableMaterials": null,
+                "MeasurableMaterials": null,
+                "HumanResources": null,
+                "Assets": null
+              },
+              {
+                "Name": "Weld joints",
+                "Description": "Weld pipe joints",
+                "Duration": {
+                  "Value": 1,
+                  "Unit": "day"
+                },
+                "Price": {
+                  "Value": 250,
+                  "Currency": "EUR"
+                },
+                "Activities": null,
+                "ComplexMaterials": null,
+                "CountableMaterials": null,
+                "MeasurableMaterials": null,
+                "HumanResources": null,
+                "Assets": null
+              }
+            ],
+            "ComplexMaterials": [
+              {
+                "Name": "Pipes",
+                "Description": "Plumbing pipes",
+                "Price": {
+                  "Value": 100,
+                  "Currency": "EUR"
+                },
+                "UnitQuantity": 5,
+                "MeasurableMaterial": {
+                  "Name": "Pipe 2m",
+                  "Description": "Copper pipe 2m",
+                  "Price": {
+                    "Value": 50,
+                    "Currency": "EUR"
+                  },
+                  "Quantity": {
+                    "Value": 2,
+                    "Unit": "m"
+                  }
+                }
+              }
+            ],
+            "CountableMaterials": [
+              {
+                "Name": "Screws",
+                "Description": "Pipe mounting screws",
+                "Price": {
+                  "Value": 0.5,
+                  "Currency": "EUR"
+                },
+                "Quantity": 80
+              }
+            ],
+            "MeasurableMaterials": [
+              {
+                "Name": "Cement",
+                "Description": "Bags of cement",
+                "Price": {
+                  "Value": 15,
+                  "Currency": "EUR"
+                },
+                "Quantity": {
+                  "Value": 50,
+                  "Unit": "kg"
+                }
+              }
+            ],
+            "HumanResources": [
+              {
+                "Name": "Plumber",
+                "Description": "Licensed plumber for pipe installation",
+                "Price": {
+                  "Value": 800,
+                  "Currency": "EUR"
+                },
+                "Duration": {
+                  "Value": 3,
+                  "Unit": "day"
+                }
+              }
+            ],
+            "Assets": [
+              {
+                "Name": "Pipe cutter",
+                "Description": "Professional pipe cutting tool",
+                "Price": {
+                  "Value": 120,
+                  "Currency": "EUR"
+                },
+                "Duration": {
+                  "Value": 0,
+                  "Unit": "day"
+                }
+              },
+              {
+                "Name": "Welding kit",
+                "Description": "Portable welding equipment",
+                "Price": {
+                  "Value": 350,
+                  "Currency": "EUR"
+                },
+                "Duration": {
+                  "Value": 0,
+                  "Unit": "day"
+                }
+              }
+            ]
+          },
+          {
+            "Name": "Install electrical",
+            "Description": "Electrical wiring in kitchen",
+            "Duration": {
+              "Value": 2,
+              "Unit": "day"
+            },
+            "Price": {
+              "Value": 1800,
+              "Currency": "EUR"
+            },
+            "Activities": [
+              {
+                "Name": "Run cables",
+                "Description": "Run electrical cables through walls",
+                "Duration": {
+                  "Value": 1,
+                  "Unit": "day"
+                },
+                "Price": {
+                  "Value": 200,
+                  "Currency": "EUR"
+                },
+                "Activities": null,
+                "ComplexMaterials": null,
+                "CountableMaterials": null,
+                "MeasurableMaterials": null,
+                "HumanResources": null,
+                "Assets": null
+              },
+              {
+                "Name": "Mount switches",
+                "Description": "Mount light switches and outlets",
+                "Duration": {
+                  "Value": 0.5,
+                  "Unit": "day"
+                },
+                "Price": {
+                  "Value": 150,
+                  "Currency": "EUR"
+                },
+                "Activities": null,
+                "ComplexMaterials": null,
+                "CountableMaterials": null,
+                "MeasurableMaterials": null,
+                "HumanResources": null,
+                "Assets": null
+              }
+            ],
+            "ComplexMaterials": null,
+            "CountableMaterials": [
+              {
+                "Name": "Light switches",
+                "Description": "Double light switches",
+                "Price": {
+                  "Value": 25,
+                  "Currency": "EUR"
+                },
+                "Quantity": 4
+              }
+            ],
+            "MeasurableMaterials": [
+              {
+                "Name": "Electrical cable",
+                "Description": "Copper electrical cable",
+                "Price": {
+                  "Value": 2,
+                  "Currency": "EUR"
+                },
+                "Quantity": {
+                  "Value": 100,
+                  "Unit": "m"
+                }
+              }
+            ],
+            "HumanResources": [
+              {
+                "Name": "Electrician",
+                "Description": "Certified electrician for wiring",
+                "Price": {
+                  "Value": 600,
+                  "Currency": "EUR"
+                },
+                "Duration": {
+                  "Value": 2,
+                  "Unit": "day"
+                }
+              }
+            ],
+            "Assets": [
+              {
+                "Name": "Drill",
+                "Description": "Cordless drill for mounting",
+                "Price": {
+                  "Value": 80,
+                  "Currency": "EUR"
+                },
+                "Duration": {
+                  "Value": 0,
+                  "Unit": "day"
+                }
+              }
+            ]
+          }
+        ],
+        "ComplexMaterials": null,
+        "CountableMaterials": null,
+        "MeasurableMaterials": null,
+        "HumanResources": null,
+        "Assets": null
+      },
+      {
+        "Name": "Bathroom Renovation",
+        "Description": "Bathroom remodeling",
+        "Duration": {
+          "Value": 10,
+          "Unit": "day"
+        },
+        "Price": {
+          "Value": 12000,
+          "Currency": "EUR"
+        },
+        "Activities": [
+          {
+            "Name": "Install tiles",
+            "Description": "Tile installation in bathroom",
+            "Duration": {
+              "Value": 4,
+              "Unit": "day"
+            },
+            "Price": {
+              "Value": 3500,
+              "Currency": "EUR"
+            },
+            "Activities": [
+              {
+                "Name": "Prepare surface",
+                "Description": "Prepare floor surface for tiling",
+                "Duration": {
+                  "Value": 1,
+                  "Unit": "day"
+                },
+                "Price": {
+                  "Value": 180,
+                  "Currency": "EUR"
+                },
+                "Activities": null,
+                "ComplexMaterials": null,
+                "CountableMaterials": null,
+                "MeasurableMaterials": null,
+                "HumanResources": null,
+                "Assets": null
+              },
+              {
+                "Name": "Apply adhesive and lay tiles",
+                "Description": "Apply adhesive and lay floor tiles",
+                "Duration": {
+                  "Value": 2,
+                  "Unit": "day"
+                },
+                "Price": {
+                  "Value": 400,
+                  "Currency": "EUR"
+                },
+                "Activities": [
+                  {
+                    "Name": "Apply grout",
+                    "Description": "Apply grout between tiles",
+                    "Duration": {
+                      "Value": 0.5,
+                      "Unit": "day"
+                    },
+                    "Price": {
+                      "Value": 80,
+                      "Currency": "EUR"
+                    },
+                    "Activities": null,
+                    "ComplexMaterials": null,
+                    "CountableMaterials": null,
+                    "MeasurableMaterials": null,
+                    "HumanResources": null,
+                    "Assets": null
+                  }
+                ],
+                "ComplexMaterials": null,
+                "CountableMaterials": null,
+                "MeasurableMaterials": null,
+                "HumanResources": null,
+                "Assets": null
+              }
+            ],
+            "ComplexMaterials": null,
+            "CountableMaterials": [
+              {
+                "Name": "Tile anchors",
+                "Description": "Wall anchors for tiles",
+                "Price": {
+                  "Value": 0.2,
+                  "Currency": "EUR"
+                },
+                "Quantity": 50
+              }
+            ],
+            "MeasurableMaterials": [
+              {
+                "Name": "Tiles",
+                "Description": "Ceramic floor tiles",
+                "Price": {
+                  "Value": 35,
+                  "Currency": "EUR"
+                },
+                "Quantity": {
+                  "Value": 15,
+                  "Unit": "m²"
+                }
+              },
+              {
+                "Name": "Grout",
+                "Description": "Tile grout",
+                "Price": {
+                  "Value": 8,
+                  "Currency": "EUR"
+                },
+                "Quantity": {
+                  "Value": 10,
+                  "Unit": "kg"
+                }
+              }
+            ],
+            "HumanResources": [
+              {
+                "Name": "Tiler",
+                "Description": "Tile layer for bathroom",
+                "Price": {
+                  "Value": 900,
+                  "Currency": "EUR"
+                },
+                "Duration": {
+                  "Value": 4,
+                  "Unit": "day"
+                }
+              }
+            ],
+            "Assets": [
+              {
+                "Name": "Tile cutter",
+                "Description": "Manual tile cutter",
+                "Price": {
+                  "Value": 60,
+                  "Currency": "EUR"
+                },
+                "Duration": {
+                  "Value": 0,
+                  "Unit": "day"
+                }
+              }
+            ]
+          }
+        ],
+        "ComplexMaterials": null,
+        "CountableMaterials": null,
+        "MeasurableMaterials": null,
+        "HumanResources": null,
+        "Assets": null
+      }
+    ],
+    "ComplexMaterials": null,
+    "CountableMaterials": null,
+    "MeasurableMaterials": null,
+    "HumanResources": null,
+    "Assets": null
+  }
+}
