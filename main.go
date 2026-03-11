@@ -32,6 +32,8 @@ func main() {
 		runGantt(os.Args[2:])
 	case "validate":
 		runValidate(os.Args[2:])
+	case "gui":
+		runGUI()
 	case "help", "-h", "--help":
 		printUsage()
 	default:
@@ -60,6 +62,7 @@ Usage:
     [-start YYYY-MM-DD] Project start date (default: today)
   explosio validate    Validate project (circular deps, references, warnings)
     [-input <file>]     Input file (default: demo)
+  explosio gui         Apri la finestra GUI desktop
 `)
 }
 
