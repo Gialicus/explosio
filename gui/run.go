@@ -2,21 +2,24 @@ package gui
 
 import (
 	"explosio/core"
-	"explosio/core/unit"
-	"fmt"
+	"explosio/gui/app"
+	"explosio/gui/components"
 	"strings"
 
 	"fyne.io/fyne/v2"
 	"fyne.io/fyne/v2/container"
 	"fyne.io/fyne/v2/dialog"
-	"fyne.io/fyne/v2/theme"
 	"fyne.io/fyne/v2/widget"
 )
 
 // Run starts the GUI with the given root activity. If root is nil, creates a minimal default project.
 func Run(root *core.Activity) {
+	projSvc := app.NewProjectService()
+	actSvc := app.NewActivityService()
+	matSvc := app.NewMaterialsService()
+
 	if root == nil {
-		root = core.NewActivity("Nuovo progetto", "", unit.Duration{Value: 0, Unit: unit.DurationUnitDay}, unit.Price{Value: 0, Currency: "EUR"})
+		root = projSvc.NewProject().Root
 	}
 
 	w := fyne.CurrentApp().NewWindow("Explosio - Activity tree")
@@ -24,7 +27,7 @@ func Run(root *core.Activity) {
 
 	var tree *widget.Tree
 	var form *ActivityForm
-	var proj *core.Project = core.NewProject(root)
+	proj := core.NewProject(root)
 
 	refreshTree := func() {
 		if tree != nil {
@@ -32,66 +35,73 @@ func Run(root *core.Activity) {
 		}
 	}
 
-	tree = NewActivityTree(root, func(selected *core.Activity) {
+	statusBar := components.NewStatusBar()
+	updateStatus := func() {
+		statusBar.Update(projSvc.GetSummary(root))
+	}
+
+	tree = components.NewActivityTree(root, actSvc, func(selected *core.Activity) {
 		if form != nil {
 			form.SelectActivity(selected)
 		}
 	})
 	tree.OpenAllBranches()
 
-	form = NewActivityForm(root, refreshTree, w)
+	form = NewActivityForm(root, actSvc, matSvc, func() {
+		refreshTree()
+		updateStatus()
+	}, w)
 	form.SetWindow(w)
-	// Seleziona "Install pipes" (path 1-0) se esiste, così si vedono subito materiali e risorse
-	if installPipes := pathToActivity(root, "1-0"); installPipes != nil {
-		tree.Select("1-0")
+
+	if installPipes := actSvc.PathToActivity(root, "1-0"); installPipes != nil {
+		tree.Select(components.TreeSelectActivityPath("1-0"))
 		form.SelectActivity(installPipes)
 	} else {
 		form.SelectActivity(root)
 	}
 
-	split := container.NewHSplit(
-		container.NewBorder(nil, nil, nil, nil, tree),
-		form.Content(),
-	)
+	split := container.NewHSplit(tree, form.Content())
 	split.SetOffset(0.3)
 
-	toolbar := widget.NewToolbar(
-		widget.NewToolbarAction(theme.DocumentIcon(), func() {
+	toolbar := components.NewToolbar(components.ToolbarCallbacks{
+		OnOpen: func() {
 			dialog.ShowFileOpen(func(uc fyne.URIReadCloser, err error) {
 				if err != nil || uc == nil {
 					return
 				}
 				defer uc.Close()
 				path := uc.URI().Path()
-				var loaded *core.Project
+				format := "json"
 				if strings.HasSuffix(strings.ToLower(path), ".yaml") || strings.HasSuffix(strings.ToLower(path), ".yml") {
-					loaded, err = core.ReadYAML(uc)
-				} else {
-					loaded, err = core.ReadJSON(uc)
+					format = "yaml"
 				}
+				loaded, err := projSvc.LoadProject(uc, format)
 				if err != nil {
 					dialog.ShowError(err, w)
 					return
 				}
 				proj = loaded
 				root = loaded.Root
-				tree = NewActivityTree(root, func(selected *core.Activity) {
+				tree = components.NewActivityTree(root, actSvc, func(selected *core.Activity) {
 					if form != nil {
 						form.SelectActivity(selected)
 					}
 				})
 				tree.OpenAllBranches()
-				form = NewActivityForm(root, refreshTree, w)
+				form = NewActivityForm(root, actSvc, matSvc, func() {
+					refreshTree()
+					updateStatus()
+				}, w)
 				form.SetWindow(w)
 				form.SelectActivity(root)
 				split.Leading = tree
 				split.Trailing = form.Content()
 				split.Refresh()
+				updateStatus()
 			}, w)
-		}),
-		widget.NewToolbarSpacer(),
-		widget.NewToolbarAction(theme.DocumentSaveIcon(), func() {
-			r := root.Validate()
+		},
+		OnSave: func() {
+			r := projSvc.Validate(proj)
 			if !r.Valid() {
 				var msg strings.Builder
 				for _, e := range r.Errors {
@@ -113,54 +123,47 @@ func Run(root *core.Activity) {
 				}
 				defer uc.Close()
 				proj = core.NewProject(root)
-				if err := proj.WriteJSON(uc); err != nil {
+				if err := projSvc.SaveProject(proj, uc); err != nil {
 					dialog.ShowError(err, w)
 					return
 				}
 			}, w)
-		}),
-		widget.NewToolbarSpacer(),
-		widget.NewToolbarAction(theme.ContentAddIcon(), func() {
+		},
+		OnAddActivity: func() {
 			curr := form.Current()
 			if curr == nil {
 				curr = root
 			}
-			child := core.NewActivity("Nuova attività", "", unit.Duration{Value: 0, Unit: unit.DurationUnitDay}, unit.Price{Value: 0, Currency: "EUR"})
-			curr.AddActivity(child)
+			child := actSvc.AddChild(curr, "Nuova attività")
 			tree.Refresh()
 			form.SelectActivity(child)
-		}),
-		widget.NewToolbarAction(theme.DeleteIcon(), func() {
+			updateStatus()
+		},
+		OnDeleteActivity: func() {
 			curr := form.Current()
 			if curr == nil || curr == root {
 				dialog.ShowInformation("Elimina", "Non è possibile eliminare la radice del progetto.", w)
 				return
 			}
-			parent, idx := activityParent(root, curr)
-			if parent == nil {
-				return
-			}
-			parent.Activities = append(parent.Activities[:idx], parent.Activities[idx+1:]...)
-			tree.Refresh()
-			form.SelectActivity(parent)
-		}),
-	)
+			dialog.ShowConfirm("Elimina attività", "Eliminare \""+curr.Name+"\" e tutte le sottostrutture?", func(ok bool) {
+				if !ok {
+					return
+				}
+				parent, _ := actSvc.GetParent(root, curr)
+				if actSvc.DeleteActivity(root, curr) {
+					tree.Refresh()
+					form.SelectActivity(parent)
+					updateStatus()
+				}
+			}, w)
+		},
+	})
 
-	statusLabel := widget.NewLabel("")
-	updateStatus := func() {
-		totalPrice := root.CalculatePrice()
-		totalDur := root.CalculateDuration()
-		statusLabel.SetText(fmt.Sprintf("Totale: %.0f %s | Durata: %.0f %s", totalPrice, root.Price.Currency, totalDur, root.Duration.Unit))
-	}
 	updateStatus()
-	form.onRefresh = func() {
-		refreshTree()
-		updateStatus()
-	}
 
 	content := container.NewBorder(
 		container.NewVBox(toolbar, widget.NewSeparator()),
-		container.NewVBox(widget.NewSeparator(), statusLabel),
+		statusBar.Content(),
 		nil, nil,
 		split,
 	)

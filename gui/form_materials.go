@@ -6,6 +6,7 @@ import (
 	"explosio/core/resource/asset"
 	"explosio/core/resource/human"
 	"explosio/core/unit"
+	"explosio/gui/app"
 	"fmt"
 	"strconv"
 
@@ -15,11 +16,35 @@ import (
 	"fyne.io/fyne/v2/widget"
 )
 
+// minHeightLayout forces a minimum height on its single child.
+type minHeightLayout struct {
+	minHeight float32
+}
+
+func (l *minHeightLayout) MinSize(objects []fyne.CanvasObject) fyne.Size {
+	if len(objects) == 0 {
+		return fyne.NewSize(0, l.minHeight)
+	}
+	s := objects[0].MinSize()
+	if s.Height < l.minHeight {
+		s.Height = l.minHeight
+	}
+	return s
+}
+
+func (l *minHeightLayout) Layout(objects []fyne.CanvasObject, size fyne.Size) {
+	for _, o := range objects {
+		o.Resize(size)
+		o.Move(fyne.NewPos(0, 0))
+	}
+}
+
 // materialsAccordion wraps an Accordion for materials/resources with setActivity.
 type materialsAccordion struct {
 	accordion       *widget.Accordion
 	activity        *core.Activity
 	form            *ActivityForm
+	matSvc          *app.MaterialsService
 	complexList     *widget.List
 	countableList   *widget.List
 	measurableList  *widget.List
@@ -27,8 +52,8 @@ type materialsAccordion struct {
 	assetList       *widget.List
 }
 
-func newMaterialsAccordion(form *ActivityForm) *materialsAccordion {
-	m := &materialsAccordion{form: form}
+func newMaterialsAccordion(form *ActivityForm, matSvc *app.MaterialsService) *materialsAccordion {
+	m := &materialsAccordion{form: form, matSvc: matSvc}
 	m.accordion = widget.NewAccordion(
 		widget.NewAccordionItem("Materiali complessi", m.buildComplexPanel()),
 		widget.NewAccordionItem("Materiali numerabili", m.buildCountablePanel()),
@@ -37,7 +62,7 @@ func newMaterialsAccordion(form *ActivityForm) *materialsAccordion {
 		widget.NewAccordionItem("Asset", m.buildAssetPanel()),
 	)
 	m.accordion.MultiOpen = true
-	m.accordion.OpenAll()
+	// Sezioni chiuse di default per ridurre lo scroll iniziale
 	return m
 }
 
@@ -74,21 +99,27 @@ func (m *materialsAccordion) buildComplexPanel() fyne.CanvasObject {
 			return len(m.activity.ComplexMaterials)
 		},
 		func() fyne.CanvasObject {
-			return container.NewHBox(widget.NewLabel(""), widget.NewButton("Elimina", nil))
+			return container.NewHBox(widget.NewLabel(""), widget.NewButton("Modifica", nil), widget.NewButton("Elimina", nil))
 		},
 		func(id widget.ListItemID, obj fyne.CanvasObject) {
 			box := obj.(*fyne.Container)
 			label := box.Objects[0].(*widget.Label)
-			btn := box.Objects[1].(*widget.Button)
+			modBtn := box.Objects[1].(*widget.Button)
+			delBtn := box.Objects[2].(*widget.Button)
 			if m.activity != nil && id < len(m.activity.ComplexMaterials) {
 				mat := m.activity.ComplexMaterials[id]
 				label.SetText(fmt.Sprintf("%s (x%d) - %.2f %s", mat.Name, mat.UnitQuantity, mat.CalculatePrice(), mat.Price.Currency))
-				btn.OnTapped = func() {
-					m.activity.ComplexMaterials = append(m.activity.ComplexMaterials[:id], m.activity.ComplexMaterials[id+1:]...)
-					m.refreshLists()
-					if m.form.onRefresh != nil {
-						m.form.onRefresh()
-					}
+				modBtn.OnTapped = func() { m.showComplexMaterialDialog(mat) }
+				delBtn.OnTapped = func() {
+					dialog.ShowConfirm("Elimina materiale", "Eliminare \""+mat.Name+"\"?", func(ok bool) {
+						if ok && m.matSvc != nil {
+							m.matSvc.RemoveComplexMaterial(m.activity, id)
+							m.refreshLists()
+							if m.form.onRefresh != nil {
+								m.form.onRefresh()
+							}
+						}
+					}, m.form.win)
 				}
 			}
 		},
@@ -96,7 +127,8 @@ func (m *materialsAccordion) buildComplexPanel() fyne.CanvasObject {
 	addBtn := widget.NewButton("+ Aggiungi", func() {
 		m.showComplexMaterialDialog(nil)
 	})
-	return container.NewBorder(nil, addBtn, nil, nil, m.complexList)
+	listWithMinHeight := container.New(&minHeightLayout{minHeight: 200}, m.complexList)
+	return container.NewBorder(nil, addBtn, nil, nil, listWithMinHeight)
 }
 
 func (m *materialsAccordion) buildCountablePanel() fyne.CanvasObject {
@@ -108,21 +140,27 @@ func (m *materialsAccordion) buildCountablePanel() fyne.CanvasObject {
 			return len(m.activity.CountableMaterials)
 		},
 		func() fyne.CanvasObject {
-			return container.NewHBox(widget.NewLabel(""), widget.NewButton("Elimina", nil))
+			return container.NewHBox(widget.NewLabel(""), widget.NewButton("Modifica", nil), widget.NewButton("Elimina", nil))
 		},
 		func(id widget.ListItemID, obj fyne.CanvasObject) {
 			box := obj.(*fyne.Container)
 			label := box.Objects[0].(*widget.Label)
-			btn := box.Objects[1].(*widget.Button)
+			modBtn := box.Objects[1].(*widget.Button)
+			delBtn := box.Objects[2].(*widget.Button)
 			if m.activity != nil && id < len(m.activity.CountableMaterials) {
 				mat := m.activity.CountableMaterials[id]
 				label.SetText(fmt.Sprintf("%s (x%d) - %.2f %s", mat.Name, mat.Quantity, mat.CalculatePrice(), mat.Price.Currency))
-				btn.OnTapped = func() {
-					m.activity.CountableMaterials = append(m.activity.CountableMaterials[:id], m.activity.CountableMaterials[id+1:]...)
-					m.refreshLists()
-					if m.form.onRefresh != nil {
-						m.form.onRefresh()
-					}
+				modBtn.OnTapped = func() { m.showCountableMaterialDialog(mat) }
+				delBtn.OnTapped = func() {
+					dialog.ShowConfirm("Elimina materiale", "Eliminare \""+mat.Name+"\"?", func(ok bool) {
+						if ok && m.matSvc != nil {
+							m.matSvc.RemoveCountableMaterial(m.activity, id)
+							m.refreshLists()
+							if m.form.onRefresh != nil {
+								m.form.onRefresh()
+							}
+						}
+					}, m.form.win)
 				}
 			}
 		},
@@ -130,7 +168,8 @@ func (m *materialsAccordion) buildCountablePanel() fyne.CanvasObject {
 	addBtn := widget.NewButton("+ Aggiungi", func() {
 		m.showCountableMaterialDialog(nil)
 	})
-	return container.NewBorder(nil, addBtn, nil, nil, m.countableList)
+	listWithMinHeight := container.New(&minHeightLayout{minHeight: 200}, m.countableList)
+	return container.NewBorder(nil, addBtn, nil, nil, listWithMinHeight)
 }
 
 func (m *materialsAccordion) buildMeasurablePanel() fyne.CanvasObject {
@@ -142,21 +181,27 @@ func (m *materialsAccordion) buildMeasurablePanel() fyne.CanvasObject {
 			return len(m.activity.MeasurableMaterials)
 		},
 		func() fyne.CanvasObject {
-			return container.NewHBox(widget.NewLabel(""), widget.NewButton("Elimina", nil))
+			return container.NewHBox(widget.NewLabel(""), widget.NewButton("Modifica", nil), widget.NewButton("Elimina", nil))
 		},
 		func(id widget.ListItemID, obj fyne.CanvasObject) {
 			box := obj.(*fyne.Container)
 			label := box.Objects[0].(*widget.Label)
-			btn := box.Objects[1].(*widget.Button)
+			modBtn := box.Objects[1].(*widget.Button)
+			delBtn := box.Objects[2].(*widget.Button)
 			if m.activity != nil && id < len(m.activity.MeasurableMaterials) {
 				mat := m.activity.MeasurableMaterials[id]
 				label.SetText(fmt.Sprintf("%s (%.0f %s) - %.2f %s", mat.Name, mat.Quantity.Value, mat.Quantity.Unit, mat.CalculatePrice(), mat.Price.Currency))
-				btn.OnTapped = func() {
-					m.activity.MeasurableMaterials = append(m.activity.MeasurableMaterials[:id], m.activity.MeasurableMaterials[id+1:]...)
-					m.refreshLists()
-					if m.form.onRefresh != nil {
-						m.form.onRefresh()
-					}
+				modBtn.OnTapped = func() { m.showMeasurableMaterialDialog(mat) }
+				delBtn.OnTapped = func() {
+					dialog.ShowConfirm("Elimina materiale", "Eliminare \""+mat.Name+"\"?", func(ok bool) {
+						if ok && m.matSvc != nil {
+							m.matSvc.RemoveMeasurableMaterial(m.activity, id)
+							m.refreshLists()
+							if m.form.onRefresh != nil {
+								m.form.onRefresh()
+							}
+						}
+					}, m.form.win)
 				}
 			}
 		},
@@ -164,7 +209,8 @@ func (m *materialsAccordion) buildMeasurablePanel() fyne.CanvasObject {
 	addBtn := widget.NewButton("+ Aggiungi", func() {
 		m.showMeasurableMaterialDialog(nil)
 	})
-	return container.NewBorder(nil, addBtn, nil, nil, m.measurableList)
+	listWithMinHeight := container.New(&minHeightLayout{minHeight: 200}, m.measurableList)
+	return container.NewBorder(nil, addBtn, nil, nil, listWithMinHeight)
 }
 
 func (m *materialsAccordion) buildHumanPanel() fyne.CanvasObject {
@@ -176,21 +222,27 @@ func (m *materialsAccordion) buildHumanPanel() fyne.CanvasObject {
 			return len(m.activity.HumanResources)
 		},
 		func() fyne.CanvasObject {
-			return container.NewHBox(widget.NewLabel(""), widget.NewButton("Elimina", nil))
+			return container.NewHBox(widget.NewLabel(""), widget.NewButton("Modifica", nil), widget.NewButton("Elimina", nil))
 		},
 		func(id widget.ListItemID, obj fyne.CanvasObject) {
 			box := obj.(*fyne.Container)
 			label := box.Objects[0].(*widget.Label)
-			btn := box.Objects[1].(*widget.Button)
+			modBtn := box.Objects[1].(*widget.Button)
+			delBtn := box.Objects[2].(*widget.Button)
 			if m.activity != nil && id < len(m.activity.HumanResources) {
 				hr := m.activity.HumanResources[id]
 				label.SetText(fmt.Sprintf("%s - %.0f %s - %.2f %s", hr.Name, hr.Duration.Value, hr.Duration.Unit, hr.Price.Value, hr.Price.Currency))
-				btn.OnTapped = func() {
-					m.activity.HumanResources = append(m.activity.HumanResources[:id], m.activity.HumanResources[id+1:]...)
-					m.refreshLists()
-					if m.form.onRefresh != nil {
-						m.form.onRefresh()
-					}
+				modBtn.OnTapped = func() { m.showHumanResourceDialog(hr) }
+				delBtn.OnTapped = func() {
+					dialog.ShowConfirm("Elimina risorsa", "Eliminare \""+hr.Name+"\"?", func(ok bool) {
+						if ok && m.matSvc != nil {
+							m.matSvc.RemoveHumanResource(m.activity, id)
+							m.refreshLists()
+							if m.form.onRefresh != nil {
+								m.form.onRefresh()
+							}
+						}
+					}, m.form.win)
 				}
 			}
 		},
@@ -198,7 +250,8 @@ func (m *materialsAccordion) buildHumanPanel() fyne.CanvasObject {
 	addBtn := widget.NewButton("+ Aggiungi", func() {
 		m.showHumanResourceDialog(nil)
 	})
-	return container.NewBorder(nil, addBtn, nil, nil, m.humanList)
+	listWithMinHeight := container.New(&minHeightLayout{minHeight: 200}, m.humanList)
+	return container.NewBorder(nil, addBtn, nil, nil, listWithMinHeight)
 }
 
 func (m *materialsAccordion) buildAssetPanel() fyne.CanvasObject {
@@ -210,21 +263,27 @@ func (m *materialsAccordion) buildAssetPanel() fyne.CanvasObject {
 			return len(m.activity.Assets)
 		},
 		func() fyne.CanvasObject {
-			return container.NewHBox(widget.NewLabel(""), widget.NewButton("Elimina", nil))
+			return container.NewHBox(widget.NewLabel(""), widget.NewButton("Modifica", nil), widget.NewButton("Elimina", nil))
 		},
 		func(id widget.ListItemID, obj fyne.CanvasObject) {
 			box := obj.(*fyne.Container)
 			label := box.Objects[0].(*widget.Label)
-			btn := box.Objects[1].(*widget.Button)
+			modBtn := box.Objects[1].(*widget.Button)
+			delBtn := box.Objects[2].(*widget.Button)
 			if m.activity != nil && id < len(m.activity.Assets) {
 				as := m.activity.Assets[id]
 				label.SetText(fmt.Sprintf("%s - %.2f %s", as.Name, as.Price.Value, as.Price.Currency))
-				btn.OnTapped = func() {
-					m.activity.Assets = append(m.activity.Assets[:id], m.activity.Assets[id+1:]...)
-					m.refreshLists()
-					if m.form.onRefresh != nil {
-						m.form.onRefresh()
-					}
+				modBtn.OnTapped = func() { m.showAssetDialog(as) }
+				delBtn.OnTapped = func() {
+					dialog.ShowConfirm("Elimina asset", "Eliminare \""+as.Name+"\"?", func(ok bool) {
+						if ok && m.matSvc != nil {
+							m.matSvc.RemoveAsset(m.activity, id)
+							m.refreshLists()
+							if m.form.onRefresh != nil {
+								m.form.onRefresh()
+							}
+						}
+					}, m.form.win)
 				}
 			}
 		},
@@ -232,7 +291,8 @@ func (m *materialsAccordion) buildAssetPanel() fyne.CanvasObject {
 	addBtn := widget.NewButton("+ Aggiungi", func() {
 		m.showAssetDialog(nil)
 	})
-	return container.NewBorder(nil, addBtn, nil, nil, m.assetList)
+	listWithMinHeight := container.New(&minHeightLayout{minHeight: 200}, m.assetList)
+	return container.NewBorder(nil, addBtn, nil, nil, listWithMinHeight)
 }
 
 func (m *materialsAccordion) refreshLists() {
@@ -294,15 +354,12 @@ func (m *materialsAccordion) showComplexMaterialDialog(existing *material.Comple
 		p := unit.Price{Value: priceVal, Currency: curr}
 		meas := material.NewMeasurableMaterial("", "", unit.Price{Value: 0, Currency: curr}, unit.MeasurableQuantity{Value: 1, Unit: unit.UnitMeter})
 		cm := material.NewComplexMaterial(nameE.Text, descE.Text, p, qty, meas)
-		if existing != nil {
-			for i, c := range m.activity.ComplexMaterials {
-				if c == existing {
-					m.activity.ComplexMaterials[i] = cm
-					break
-				}
+		if m.matSvc != nil {
+			if existing != nil {
+				m.matSvc.ReplaceComplexMaterial(m.activity, existing, cm)
+			} else {
+				m.matSvc.AddComplexMaterial(m.activity, cm)
 			}
-		} else {
-			m.activity.AddComplexMaterial(cm)
 		}
 		m.refreshLists()
 		if m.form.onRefresh != nil {
@@ -352,15 +409,12 @@ func (m *materialsAccordion) showCountableMaterialDialog(existing *material.Coun
 		}
 		p := unit.Price{Value: priceVal, Currency: curr}
 		cm := material.NewCountableMaterial(nameE.Text, descE.Text, p, qty)
-		if existing != nil {
-			for i, c := range m.activity.CountableMaterials {
-				if c == existing {
-					m.activity.CountableMaterials[i] = cm
-					break
-				}
+		if m.matSvc != nil {
+			if existing != nil {
+				m.matSvc.ReplaceCountableMaterial(m.activity, existing, cm)
+			} else {
+				m.matSvc.AddCountableMaterial(m.activity, cm)
 			}
-		} else {
-			m.activity.AddCountableMaterial(cm)
 		}
 		m.refreshLists()
 		if m.form.onRefresh != nil {
@@ -382,7 +436,13 @@ func (m *materialsAccordion) showMeasurableMaterialDialog(existing *material.Mea
 	currE.SetText("EUR")
 	valE := widget.NewEntry()
 	valE.SetPlaceHolder("0")
-	unitSelect := widget.NewSelect([]string{"m", "m²", "kg", "g", "day"}, nil)
+	measurableUnits := []string{
+		"mm", "cm", "dm", "m", "km",
+		"mm²", "cm²", "dm²", "m²", "km²",
+		"mm³", "cm³", "dm³", "m³", "km³",
+		"mg", "cg", "dg", "g", "kg", "t",
+	}
+	unitSelect := widget.NewSelect(measurableUnits, nil)
 	unitSelect.SetSelected("m")
 	if existing != nil {
 		nameE.SetText(existing.Name)
@@ -390,7 +450,16 @@ func (m *materialsAccordion) showMeasurableMaterialDialog(existing *material.Mea
 		priceE.SetText(strconv.FormatFloat(existing.Price.Value, 'f', -1, 64))
 		currE.SetText(existing.Price.Currency)
 		valE.SetText(strconv.FormatFloat(existing.Quantity.Value, 'f', -1, 64))
-		unitSelect.SetSelected(string(existing.Quantity.Unit))
+		unitStr := string(existing.Quantity.Unit)
+		for _, u := range measurableUnits {
+			if u == unitStr {
+				unitSelect.SetSelected(unitStr)
+				break
+			}
+		}
+		if unitSelect.Selected == "" {
+			unitSelect.SetSelected("m")
+		}
 	}
 	items := []*widget.FormItem{
 		widget.NewFormItem("Nome", nameE),
@@ -414,15 +483,12 @@ func (m *materialsAccordion) showMeasurableMaterialDialog(existing *material.Mea
 		p := unit.Price{Value: priceVal, Currency: curr}
 		q := unit.MeasurableQuantity{Value: qtyVal, Unit: unit.MeasurableUnit(unitSelect.Selected)}
 		mm := material.NewMeasurableMaterial(nameE.Text, descE.Text, p, q)
-		if existing != nil {
-			for i, c := range m.activity.MeasurableMaterials {
-				if c == existing {
-					m.activity.MeasurableMaterials[i] = mm
-					break
-				}
+		if m.matSvc != nil {
+			if existing != nil {
+				m.matSvc.ReplaceMeasurableMaterial(m.activity, existing, mm)
+			} else {
+				m.matSvc.AddMeasurableMaterial(m.activity, mm)
 			}
-		} else {
-			m.activity.AddMeasurableMaterial(mm)
 		}
 		m.refreshLists()
 		if m.form.onRefresh != nil {
@@ -473,15 +539,12 @@ func (m *materialsAccordion) showHumanResourceDialog(existing *human.HumanResour
 		p := unit.Price{Value: priceVal, Currency: curr}
 		d := unit.Duration{Value: durVal, Unit: unit.DurationUnit(durSelect.Selected)}
 		hr := human.NewHumanResource(nameE.Text, descE.Text, d, p)
-		if existing != nil {
-			for i, c := range m.activity.HumanResources {
-				if c == existing {
-					m.activity.HumanResources[i] = hr
-					break
-				}
+		if m.matSvc != nil {
+			if existing != nil {
+				m.matSvc.ReplaceHumanResource(m.activity, existing, hr)
+			} else {
+				m.matSvc.AddHumanResource(m.activity, hr)
 			}
-		} else {
-			m.activity.AddHumanResource(hr)
 		}
 		m.refreshLists()
 		if m.form.onRefresh != nil {
@@ -532,15 +595,12 @@ func (m *materialsAccordion) showAssetDialog(existing *asset.Asset) {
 		p := unit.Price{Value: priceVal, Currency: curr}
 		d := unit.Duration{Value: durVal, Unit: unit.DurationUnit(durSelect.Selected)}
 		as := asset.NewAsset(nameE.Text, descE.Text, p, d)
-		if existing != nil {
-			for i, c := range m.activity.Assets {
-				if c == existing {
-					m.activity.Assets[i] = as
-					break
-				}
+		if m.matSvc != nil {
+			if existing != nil {
+				m.matSvc.ReplaceAsset(m.activity, existing, as)
+			} else {
+				m.matSvc.AddAsset(m.activity, as)
 			}
-		} else {
-			m.activity.AddAsset(as)
 		}
 		m.refreshLists()
 		if m.form.onRefresh != nil {

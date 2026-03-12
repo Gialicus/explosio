@@ -2,7 +2,8 @@ package gui
 
 import (
 	"explosio/core"
-	"explosio/core/unit"
+	"explosio/gui/app"
+	"explosio/gui/viewmodel"
 	"strconv"
 
 	"fyne.io/fyne/v2"
@@ -15,11 +16,13 @@ var durationUnits = []string{"minute", "hour", "day", "week", "month", "year"}
 
 // ActivityForm is a form panel for editing an Activity's base fields.
 type ActivityForm struct {
-	root       *core.Activity
-	current    *core.Activity
-	onRefresh  func()
-	win        fyne.Window
-	loading    bool // true durante loadFromActivity, evita che SetText attivi saveToActivity
+	root        *core.Activity
+	current     *core.Activity
+	actSvc      *app.ActivityService
+	matSvc      *app.MaterialsService
+	onRefresh   func()
+	win         fyne.Window
+	loading     bool // true durante loadFromActivity, evita che SetText attivi saveToActivity
 
 	// Base fields
 	nameEntry       *widget.Entry
@@ -32,14 +35,19 @@ type ActivityForm struct {
 	// Materials/resources accordion (from form_materials.go)
 	materialsAccordion *materialsAccordion
 
-	content *fyne.Container
+	content         *fyne.Container
+	centerContent   *fyne.Container // Stack: placeholder o form scroll
+	emptyPlaceholder fyne.CanvasObject
+	formScroll      fyne.CanvasObject
 }
 
-// NewActivityForm creates a new activity form. onRefresh is called when the tree should refresh (e.g. after name change).
+// NewActivityForm creates a new activity form. actSvc and matSvc are used for updating activities and materials; onRefresh is called when the tree should refresh.
 // win is used for dialogs (can be set later via SetWindow).
-func NewActivityForm(root *core.Activity, onRefresh func(), win fyne.Window) *ActivityForm {
+func NewActivityForm(root *core.Activity, actSvc *app.ActivityService, matSvc *app.MaterialsService, onRefresh func(), win fyne.Window) *ActivityForm {
 	f := &ActivityForm{
 		root:      root,
+		actSvc:    actSvc,
+		matSvc:    matSvc,
 		onRefresh: onRefresh,
 		win:       win,
 	}
@@ -67,27 +75,38 @@ func NewActivityForm(root *core.Activity, onRefresh func(), win fyne.Window) *Ac
 	f.currencyEntry.SetPlaceHolder("EUR")
 	f.currencyEntry.OnChanged = f.onFieldChanged
 
-	baseForm := widget.NewForm(
+	baseInfoForm := widget.NewForm(
 		widget.NewFormItem("Nome", f.nameEntry),
 		widget.NewFormItem("Descrizione", f.descEntry),
+	)
+	tempiCostiForm := widget.NewForm(
 		widget.NewFormItem("Durata", container.NewHBox(f.durationEntry, f.durationSelect)),
-		widget.NewFormItem("Prezzo", f.priceEntry),
-		widget.NewFormItem("Valuta", f.currencyEntry),
+		widget.NewFormItem("Prezzo", container.NewHBox(f.priceEntry, f.currencyEntry)),
 	)
 
-	f.materialsAccordion = newMaterialsAccordion(f)
+	f.materialsAccordion = newMaterialsAccordion(f, matSvc)
+
+	baseLabel := widget.NewLabelWithStyle("Informazioni base", fyne.TextAlignLeading, fyne.TextStyle{Bold: true})
+	tempiLabel := widget.NewLabelWithStyle("Tempi e costi", fyne.TextAlignLeading, fyne.TextStyle{Bold: true})
 
 	scroll := container.NewScroll(container.NewVBox(
-		baseForm,
+		baseLabel,
+		baseInfoForm,
+		widget.NewSeparator(),
+		tempiLabel,
+		tempiCostiForm,
 		widget.NewSeparator(),
 		f.materialsAccordion.accordion,
 	))
-	scroll.SetMinSize(fyne.NewSize(300, 400))
+	scroll.SetMinSize(fyne.NewSize(300, 550))
 
+	f.emptyPlaceholder = widget.NewLabelWithStyle("Seleziona un'attività dal tree", fyne.TextAlignCenter, fyne.TextStyle{})
+	f.formScroll = scroll
+	f.centerContent = container.NewStack(f.emptyPlaceholder)
 	f.content = container.NewBorder(
 		widget.NewLabelWithStyle("Dettagli attività", fyne.TextAlignLeading, fyne.TextStyle{Bold: true}),
 		nil, nil, nil,
-		scroll,
+		f.centerContent,
 	)
 
 	return f
@@ -104,24 +123,19 @@ func (f *ActivityForm) onFieldChanged(string) {
 }
 
 func (f *ActivityForm) saveToActivity() {
-	if f.current == nil {
+	if f.current == nil || f.actSvc == nil {
 		return
 	}
-	f.current.Name = f.nameEntry.Text
-	f.current.Description = f.descEntry.Text
-
-	if v, err := strconv.ParseFloat(f.durationEntry.Text, 64); err == nil {
-		f.current.Duration.Value = v
-	}
-	f.current.Duration.Unit = unit.DurationUnit(f.durationSelect.Selected)
-
-	if v, err := strconv.ParseFloat(f.priceEntry.Text, 64); err == nil {
-		f.current.Price.Value = v
-	}
-	f.current.Price.Currency = f.currencyEntry.Text
-	if f.current.Price.Currency == "" {
-		f.current.Price.Currency = "EUR"
-	}
+	vm := &viewmodel.ActivityViewModel{}
+	vm.ParseFromForm(
+		f.nameEntry.Text,
+		f.descEntry.Text,
+		f.durationEntry.Text,
+		f.durationSelect.Selected,
+		f.priceEntry.Text,
+		f.currencyEntry.Text,
+	)
+	f.actSvc.UpdateActivity(f.current, vm.ToUpdateFields())
 }
 
 func (f *ActivityForm) loadFromActivity(a *core.Activity) {
@@ -136,19 +150,20 @@ func (f *ActivityForm) loadFromActivity(a *core.Activity) {
 		f.priceEntry.SetText("0")
 		f.currencyEntry.SetText("EUR")
 		f.materialsAccordion.setActivity(nil)
+		f.centerContent.Objects = []fyne.CanvasObject{f.emptyPlaceholder}
+		f.centerContent.Refresh()
 		return
 	}
+	f.centerContent.Objects = []fyne.CanvasObject{f.formScroll}
+	f.centerContent.Refresh()
 
-	f.nameEntry.SetText(a.Name)
-	f.descEntry.SetText(a.Description)
-	f.durationEntry.SetText(strconv.FormatFloat(a.Duration.Value, 'f', -1, 64))
-	unitStr := string(a.Duration.Unit)
-	if unitStr == "" {
-		unitStr = "day"
-	}
-	f.durationSelect.SetSelected(unitStr)
-	f.priceEntry.SetText(strconv.FormatFloat(a.Price.Value, 'f', -1, 64))
-	f.currencyEntry.SetText(a.Price.Currency)
+	vm := viewmodel.FromActivity(a)
+	f.nameEntry.SetText(vm.Name)
+	f.descEntry.SetText(vm.Description)
+	f.durationEntry.SetText(strconv.FormatFloat(vm.DurationValue, 'f', -1, 64))
+	f.durationSelect.SetSelected(vm.DurationUnit)
+	f.priceEntry.SetText(strconv.FormatFloat(vm.PriceValue, 'f', -1, 64))
+	f.currencyEntry.SetText(vm.Currency)
 	if f.currencyEntry.Text == "" {
 		f.currencyEntry.SetText("EUR")
 	}
